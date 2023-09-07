@@ -77,12 +77,12 @@ def draw_objects(image, results, limits, unique_results):
 
 
 if __name__ == '__main__':
-    cap = cv2.VideoCapture("../../learning/Videos/potholes.mp4")
+    cap = cv2.VideoCapture("../../ph-storage/videos/potholes.mp4")
     mask = cv2.imread("mask.png")
     graphics = cv2.imread("graphics.png", cv2.IMREAD_UNCHANGED)
 
     # Detecting and Tracking parts
-    model = YOLO("../../learning/Yolo-Weights/ph_yolov8n.pt")
+    model = YOLO("../../ph-storage/models/ph_yolov8n.pt")
     tracker = Sort(max_age=20, min_hits=3, iou_threshold=0.3)
 
     total_count = []

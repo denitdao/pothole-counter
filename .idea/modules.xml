@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/learning/learning.iml" filepath="$PROJECT_DIR$/learning/learning.iml" />
+      <module fileurl="file://$PROJECT_DIR$/ph-detector/ph-detector.iml" filepath="$PROJECT_DIR$/ph-detector/ph-detector.iml" />
       <module fileurl="file://$PROJECT_DIR$/ph-manager.iml" filepath="$PROJECT_DIR$/ph-manager.iml" />
       <module fileurl="file://$PROJECT_DIR$/pothole-counter.iml" filepath="$PROJECT_DIR$/pothole-counter.iml" />
     </modules>
