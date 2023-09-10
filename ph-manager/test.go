@@ -2,7 +2,7 @@ package main
 
 import "fmt"
 
-func main() {
+func main1() {
 	var arr = []int{1, 2, 3, 4, 5}
 	slice := [5]int{}
 
