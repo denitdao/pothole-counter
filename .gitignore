@@ -1,6 +1,6 @@
 *.mp4
 *.jpg
+*.png
 *.pt
-/learning/Project 4 - Poker Hand Detector/Poker-Hand-Detector.py
-/learning/Project 4 - Poker Hand Detector/PokerHandFunction.py
-/learning/Project 3 - PPE Detection/PPEDetection.py
+/learning/Project 3 - PPE Detection/*
+/learning/Project 4 - Poker Hand Detector/*
