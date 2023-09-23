@@ -22,7 +22,7 @@
         <div class="flex-1 w-1/5 py-2 text-center">Time</div>
     </div>
     <div class="bg-white">
-        {{range .Recordings}}
+        {{range .RecordingRows}}
             <a href="/view-recording/{{.ID}}" class="block text-gray-700 hover:bg-gray-100">
                 <div class="flex border-t border-gray-200">
                     <div class="flex-1 w-2/5 text-center py-3">{{.ID}}</div>

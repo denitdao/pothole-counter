@@ -3,16 +3,17 @@ package main
 import (
 	"log"
 	"net/http"
+	"ph-manager/db"
 	"ph-manager/handlers"
-	"ph-manager/util"
 )
 
 func main() {
 	// Initialize database
-	util.InitDB()
+	db.InitDB()
 
 	// Handle static files
-	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static/"))))
+	fs := http.FileServer(http.Dir("static/"))
+	http.Handle("/static/", http.StripPrefix("/static/", fs))
 
 	// Setup routes
 	http.HandleFunc("/", handlers.Index)

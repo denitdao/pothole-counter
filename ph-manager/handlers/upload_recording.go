@@ -2,62 +2,96 @@ package handlers
 
 import (
 	"errors"
-	"fmt"
+	"html/template"
 	"io"
-	"log"
 	"net/http"
 	"os"
 	"path/filepath"
+	"ph-manager/db"
 	"ph-manager/util"
+	"time"
+)
+
+// TODO: steps to implement this page
+//  make reusable component to inject into the page and return from endpoint
+//  add error handling
+
+type (
+	UploadRecordingRequest struct {
+	}
+
+	UploadRecordingComponent struct {
+		UploadStatus UploadStatus
+		Error        error
+	}
+
+	UploadStatus struct {
+		RecordingID int
+		VideoName   string
+		Duration    int
+		UploadedAt  time.Time
+
+		HasVideo bool
+		HasGPX   bool
+	}
 )
 
 func UploadRecording(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		return
 	}
+	uploadStatus := UploadStatus{}
 
-	row := util.DB.QueryRow("SELECT id, video_name FROM recordings WHERE id = ?", "1000000")
-	var id, videoName string
-	err := row.Scan(&id, &videoName)
+	recording, err := storeVideo(r)
 	if err != nil {
-		log.Fatal(err)
-	}
-	log.Println(id, videoName)
-
-	if storeVideo(w, r) {
-		return
-	}
-	if isGPXPresent(w, r) && storeGPX(w, r) {
-		return
+		uploadStatus.HasVideo = false
+	} else {
+		uploadStatus.HasVideo = true
+		uploadStatus.RecordingID = recording.ID
+		uploadStatus.VideoName = recording.OriginalFileName
+		uploadStatus.Duration = -1 // todo: get duration
+		uploadStatus.UploadedAt = recording.CreatedAt
 	}
 
-	fmt.Fprint(w, "Upload successful")
-	return
+	t := template.Must(template.New("upload-recording.gohtml").Funcs(template.FuncMap{
+		"formatDate": util.FormatDate,
+	}).ParseFiles("templates/components/upload-recording.gohtml"))
+	c := UploadRecordingComponent{
+		UploadStatus: uploadStatus,
+		Error:        err,
+	}
+	err = t.Execute(w, c)
+
+	if err != nil {
+		panic(err)
+	}
 }
 
-func storeVideo(w http.ResponseWriter, r *http.Request) bool {
-	storagePath := util.GetProperty("storage.path")
-	videoFolder := util.GetProperty("video.folder")
-	videoDestPath := filepath.Join(storagePath, videoFolder, "video.mp4") // todo: unique filename
-
-	videoFile, _, err := r.FormFile("video")
+func storeVideo(r *http.Request) (db.Recording, error) {
+	videoFile, header, err := r.FormFile("video")
 	if err != nil {
-		http.Error(w, "Unable to read video", http.StatusBadRequest)
-		return true
+		return db.Recording{}, errors.New("unable to read video")
 	}
 	defer videoFile.Close()
 
-	videoDest, err := os.Create(videoDestPath)
+	originalFileName := header.Filename
+
+	storagePath, videoFolder := util.GetProperty("storage.path"), util.GetProperty("video.folder")
+	videoDestPath := filepath.Join(storagePath, videoFolder)
+	videoDest, err := os.CreateTemp(videoDestPath, "v_*.mp4")
 	if err != nil {
-		http.Error(w, "Unable to save video", http.StatusInternalServerError)
-		return true
+		return db.Recording{}, errors.New("unable to save video")
 	}
 	defer videoDest.Close()
-	io.Copy(videoDest, videoFile)
-	// todo: create recording in database
-	return false
+	_, err = io.Copy(videoDest, videoFile)
+	if err != nil {
+		return db.Recording{}, errors.New("unable to save video")
+	}
+
+	return db.CreateRecording(filepath.Base(videoDest.Name()), originalFileName, time.Now())
 }
 
+// isGPXPresent(w, r) && storeGPX(w, r)
 func storeGPX(w http.ResponseWriter, r *http.Request) bool {
 	storagePath := util.GetProperty("storage.path")
 	gpxFolder := util.GetProperty("gpx.folder")
@@ -77,7 +111,6 @@ func storeGPX(w http.ResponseWriter, r *http.Request) bool {
 	}
 	defer gpxDest.Close()
 	io.Copy(gpxDest, gpxFile)
-	// todo: create gpx in database and link to recording
 	return false
 }
 

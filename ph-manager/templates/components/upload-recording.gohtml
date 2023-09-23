@@ -1,0 +1,42 @@
+{{ with .Error }}
+    <p>GOT AN ERROR</p>
+{{end}}
+{{ with .UploadStatus }}
+    <form action="/upload-recording" method="post" enctype="multipart/form-data" class="flex"
+          hx-post="/upload-recording" hx-swap="outerHTML" hx-indicator="#spinner">
+        <div class="flex-1 w-2/3 m-2">
+            <h3>Upload Video</h3>
+            <p>Video uploaded {{ .VideoName }}</p>
+        </div>
+        <div class="flex-1 w-1/3 m-2">
+            <div class="h-4"></div>
+            <div>
+                <div class="flex">
+                    <div class="flex-1">Upload ID:</div>
+                    <div class="flex-1">{{ .RecordingID }}</div>
+                </div>
+                <div class="flex">
+                    <div class="flex-1">Duration:</div>
+                    <div class="flex-1">{{ .Duration }}</div>
+                </div>
+                <div class="flex">
+                    <div class="flex-1">Date:</div>
+                    <div class="flex-1">{{formatDate .UploadedAt }}</div>
+                </div>
+                <div class="flex">
+                    <div class="flex-1">GPX included:</div>
+                    <div class="flex-1">
+                        {{if .HasGPX}}
+                            Yes
+                        {{else}}
+                            <s>No</s>
+                        {{end}}
+                    </div>
+                </div>
+            </div>
+            <div id="spinner" class="htmx-indicator">Uploading...</div>
+            <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white py-1 px-4 rounded">Analyze
+            </button>
+        </div>
+    </form>
+{{ end }}

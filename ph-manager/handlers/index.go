@@ -3,15 +3,16 @@ package handlers
 import (
 	"html/template"
 	"net/http"
+	"ph-manager/util"
 	"time"
 )
 
 type (
 	IndexPage struct {
-		Recordings []Recording
+		RecordingRows []RecordingRow
 	}
 
-	Recording struct {
+	RecordingRow struct {
 		ID       int
 		Potholes int
 		HasGPX   bool
@@ -21,11 +22,11 @@ type (
 
 func Index(w http.ResponseWriter, r *http.Request) {
 	t := template.Must(template.New("index.gohtml").Funcs(template.FuncMap{
-		"formatDate": formatDate,
+		"formatDate": util.FormatDate,
 	}).ParseFiles("templates/index.gohtml", "templates/components/meta.gohtml"))
 
 	p := IndexPage{
-		Recordings: []Recording{
+		RecordingRows: []RecordingRow{
 			{1, 3, true, time.Now()},
 			{2, 5, false, time.Now()},
 			{3, 1, false, time.Now()},
@@ -36,8 +37,4 @@ func Index(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		panic(err)
 	}
-}
-
-func formatDate(t time.Time) string {
-	return t.Format("15:04 02.01.2006")
 }

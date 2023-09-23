@@ -1,19 +1,19 @@
-package util
+package db
 
 import (
 	"database/sql"
 	_ "github.com/go-sql-driver/mysql"
 	"log"
+	"ph-manager/util"
 	"time"
 )
 
-// DB is a package level variable that will be available for
-// sharing between different packages in the application.
+// DB is a connection pool to the database.
 var DB *sql.DB
 
 func InitDB() {
-	driver := GetProperty("db.driver")
-	dataSourceName := GetProperty("db.datasource")
+	driver := util.GetProperty("db.driver")
+	dataSourceName := util.GetProperty("db.datasource")
 
 	var err error
 	DB, err = sql.Open(driver, dataSourceName)

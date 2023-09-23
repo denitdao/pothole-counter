@@ -6,7 +6,8 @@ SELECT 'CREATING DATABASE STRUCTURE' as 'INFO';
 
 DROP TABLE IF EXISTS recordings,
     detections,
-    gpx;
+    gpx,
+    detection_location;
 
 /*!50503 set default_storage_engine = InnoDB */;
 /*!50503
@@ -14,7 +15,7 @@ select CONCAT('storage engine: ', @@default_storage_engine) as INFO */;
 
 CREATE TABLE recordings
 (
-    id                 INT          NOT NULL,
+    id                 INT          NOT NULL AUTO_INCREMENT,
 
     video_name         VARCHAR(255) NOT NULL,
     original_file_name VARCHAR(255) NOT NULL,
@@ -26,7 +27,7 @@ CREATE TABLE recordings
 
 CREATE TABLE detections
 (
-    id                INT          NOT NULL,
+    id                INT          NOT NULL AUTO_INCREMENT,
     recording_id      INT          NOT NULL,
 
     file_name         VARCHAR(255) NOT NULL,
@@ -41,7 +42,7 @@ CREATE TABLE detections
 
 CREATE TABLE gpx
 (
-    id           INT          NOT NULL,
+    id           INT          NOT NULL AUTO_INCREMENT,
     recording_id INT          NOT NULL,
 
     file_name    VARCHAR(255) NOT NULL,
@@ -53,7 +54,7 @@ CREATE TABLE gpx
 
 CREATE TABLE detection_location
 (
-    id           INT       NOT NULL,
+    id           INT       NOT NULL AUTO_INCREMENT,
     detection_id INT       NOT NULL,
     gpx_id       INT       NOT NULL,
 
