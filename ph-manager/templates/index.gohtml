@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {{ template "meta.gohtml" . }}
+    <title>Recordings</title>
+</head>
+<body>
+<div class="m-8">
+    <a href="/">Pothole Detector</a>
+</div>
+<div class="container mx-auto p-4">
+    <div class="flex justify-between items-center mb-16">
+        <h1 class="text-2xl">Analyzed Videos</h1>
+        <a href="/add-recording" class="bg-blue-500 hover:bg-blue-700 text-white py-1 px-4 rounded">
+            + New Upload
+        </a>
+    </div>
+    <div class="bg-gray-800 text-white flex p-2">
+        <div class="flex-1 w-2/5 py-2 text-center">ID</div>
+        <div class="flex-1 w-1/5 py-2 text-center">Potholes</div>
+        <div class="flex-1 w-1/5 py-2 text-center">GPX</div>
+        <div class="flex-1 w-1/5 py-2 text-center">Time</div>
+    </div>
+    <div class="bg-white">
+        {{range .Recordings}}
+            <a href="/view-recording/{{.ID}}" class="block text-gray-700 hover:bg-gray-100">
+                <div class="flex border-t border-gray-200">
+                    <div class="flex-1 w-2/5 text-center py-3">{{.ID}}</div>
+                    <div class="flex-1 w-1/5 text-center py-3">{{.Potholes}}</div>
+                    <div class="flex-1 w-1/5 text-center py-3">
+                        {{if .HasGPX}}
+                            Yes
+                        {{else}}
+                            <s>No</s>
+                        {{end}}
+                    </div>
+                    <div class="flex-1 w-1/5 text-center py-3">{{formatDate .DateTime}}</div>
+                </div>
+            </a>
+        {{end}}
+    </div>
+</div>
+</body>
+</html>

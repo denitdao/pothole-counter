@@ -1,0 +1,2 @@
+INSERT INTO `recordings` VALUES
+(1000000,'potholes.mp4','potholes.mp4','2023-06-07 12:34:56')
