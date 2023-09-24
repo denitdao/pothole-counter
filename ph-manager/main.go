@@ -1,10 +1,12 @@
 package main
 
 import (
+	"github.com/gin-gonic/gin"
+	"html/template"
 	"log"
-	"net/http"
 	"ph-manager/db"
 	"ph-manager/handlers"
+	"ph-manager/util"
 )
 
 func main() {
@@ -12,15 +14,19 @@ func main() {
 	db.InitDB()
 
 	// Handle static files
-	fs := http.FileServer(http.Dir("static/"))
-	http.Handle("/static/", http.StripPrefix("/static/", fs))
+	router := gin.Default()
+	router.Static("/static", "./static")
+	router.SetFuncMap(template.FuncMap{
+		"formatDate": util.FormatDate,
+	})
+	router.LoadHTMLGlob("templates/**/*.gohtml")
 
 	// Setup routes
-	http.HandleFunc("/", handlers.Index)
-	http.HandleFunc("/add-recording", handlers.AddRecording)
-	http.HandleFunc("/view-recording/", handlers.ViewRecording)
-	http.HandleFunc("/upload-recording", handlers.UploadRecording)
+	router.GET("/", handlers.Index)
+	router.GET("/add-recording", handlers.AddRecording)
+	router.GET("/view-recording/:id", handlers.ViewRecording)
+	router.POST("/upload-recording", handlers.UploadRecording)
 
 	// Start server
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	log.Fatal(router.Run(":8080"))
 }

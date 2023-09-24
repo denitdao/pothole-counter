@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"errors"
-	"html/template"
+	"github.com/gin-gonic/gin"
 	"io"
 	"log"
 	"net/http"
@@ -33,13 +33,10 @@ type (
 	}
 )
 
-func UploadRecording(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		return
-	}
+func UploadRecording(c *gin.Context) {
 	uploadStatus := UploadStatus{}
 
-	recording, err := storeVideo(r)
+	recording, err := storeVideo(c.Request)
 	if err != nil {
 		uploadStatus.HasVideo = false
 	} else {
@@ -50,18 +47,10 @@ func UploadRecording(w http.ResponseWriter, r *http.Request) {
 		uploadStatus.UploadedAt = recording.CreatedAt
 	}
 
-	t := template.Must(template.New("upload-recording.gohtml").Funcs(template.FuncMap{
-		"formatDate": util.FormatDate,
-	}).ParseFiles("templates/components/upload-recording.gohtml"))
-	c := UploadRecordingComponent{
+	c.HTML(http.StatusOK, "upload-recording.gohtml", UploadRecordingComponent{
 		UploadStatus: uploadStatus,
 		Error:        err,
-	}
-	err = t.Execute(w, c)
-
-	if err != nil {
-		panic(err)
-	}
+	})
 }
 
 func storeVideo(r *http.Request) (db.Recording, error) {

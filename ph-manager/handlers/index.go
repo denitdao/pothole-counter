@@ -1,10 +1,9 @@
 package handlers
 
 import (
-	"html/template"
+	"github.com/gin-gonic/gin"
 	"net/http"
 	"ph-manager/db"
-	"ph-manager/util"
 	"time"
 )
 
@@ -21,11 +20,7 @@ type (
 	}
 )
 
-func Index(w http.ResponseWriter, r *http.Request) {
-	t := template.Must(template.New("index.gohtml").Funcs(template.FuncMap{
-		"formatDate": util.FormatDate,
-	}).ParseFiles("templates/index.gohtml", "templates/components/meta.gohtml"))
-
+func Index(c *gin.Context) {
 	recordings, err := db.GetRecordings()
 	if err != nil {
 		panic(err)
@@ -43,8 +38,5 @@ func Index(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	err = t.Execute(w, p)
-	if err != nil {
-		panic(err)
-	}
+	c.HTML(http.StatusOK, "index.gohtml", p)
 }
