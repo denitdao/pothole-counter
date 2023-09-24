@@ -27,14 +27,16 @@ CREATE TABLE recordings
 
 CREATE TABLE detections
 (
-    id                INT          NOT NULL AUTO_INCREMENT,
-    recording_id      INT          NOT NULL,
+    id                      INT          NOT NULL AUTO_INCREMENT,
+    recording_id            INT          NOT NULL,
 
-    file_name         VARCHAR(255) NOT NULL,
-    frame_number      INT          NOT NULL,
-    video_millisecond INT          NOT NULL,
-    confidence        FLOAT        NOT NULL,
-    created_at        TIMESTAMP    NOT NULL,
+    file_name               VARCHAR(255) NOT NULL,
+    frame_number            INT          NOT NULL,
+    total_frame_number      INT          NOT NULL,
+    video_millisecond       INT          NOT NULL,
+    total_video_millisecond INT          NOT NULL,
+    confidence              FLOAT        NOT NULL,
+    created_at              TIMESTAMP    NOT NULL,
 
     FOREIGN KEY (recording_id) REFERENCES recordings (id) ON DELETE CASCADE,
     PRIMARY KEY (id, recording_id)

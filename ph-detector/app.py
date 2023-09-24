@@ -10,9 +10,9 @@ def status():
     return 'OK'
 
 
-@app.route('/analyze/<video_name>')
-def analyze(video_name):
-    analyze_video(video_name)
+@app.route('/analyze/<recording_id>')
+def analyze(recording_id):
+    analyze_video(recording_id)
     return 'Analysis started'
 
 
