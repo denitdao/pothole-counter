@@ -4,6 +4,7 @@ import (
 	"errors"
 	"html/template"
 	"io"
+	"log"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -14,12 +15,8 @@ import (
 
 // TODO: steps to implement this page
 //  make reusable component to inject into the page and return from endpoint
-//  add error handling
 
 type (
-	UploadRecordingRequest struct {
-	}
-
 	UploadRecordingComponent struct {
 		UploadStatus UploadStatus
 		Error        error
@@ -70,6 +67,7 @@ func UploadRecording(w http.ResponseWriter, r *http.Request) {
 func storeVideo(r *http.Request) (db.Recording, error) {
 	videoFile, header, err := r.FormFile("video")
 	if err != nil {
+		log.Println(err)
 		return db.Recording{}, errors.New("unable to read video")
 	}
 	defer videoFile.Close()

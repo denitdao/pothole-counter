@@ -3,6 +3,7 @@ package handlers
 import (
 	"html/template"
 	"net/http"
+	"ph-manager/db"
 	"ph-manager/util"
 	"time"
 )
@@ -25,15 +26,24 @@ func Index(w http.ResponseWriter, r *http.Request) {
 		"formatDate": util.FormatDate,
 	}).ParseFiles("templates/index.gohtml", "templates/components/meta.gohtml"))
 
-	p := IndexPage{
-		RecordingRows: []RecordingRow{
-			{1, 3, true, time.Now()},
-			{2, 5, false, time.Now()},
-			{3, 1, false, time.Now()},
-		},
+	recordings, err := db.GetRecordings()
+	if err != nil {
+		panic(err)
 	}
 
-	err := t.Execute(w, p)
+	p := IndexPage{
+		RecordingRows: make([]RecordingRow, len(recordings)),
+	}
+	for i, recording := range recordings {
+		p.RecordingRows[i] = RecordingRow{
+			ID:       recording.ID,
+			Potholes: -1,    // todo: get potholes
+			HasGPX:   false, // todo: get gpx
+			DateTime: recording.CreatedAt,
+		}
+	}
+
+	err = t.Execute(w, p)
 	if err != nil {
 		panic(err)
 	}
