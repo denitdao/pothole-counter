@@ -1,4 +1,5 @@
 import math
+from datetime import datetime
 
 import cv2
 from ultralytics import YOLO
@@ -15,41 +16,67 @@ model = YOLO(MODEL_PATH)
 db = Database(HOST, USER, PASSWORD, DATABASE)
 
 
+class AnalysisState:
+    def __init__(self, recording_id, cap, records_folder, records_path, total_frames, total_milliseconds):
+        self.recording_id = recording_id
+        self.cap = cap
+        self.records_folder = records_folder
+        self.records_path = records_path
+        self.current_frame = 0
+        self.total_frames = total_frames
+        self.current_millisecond = 0
+        self.total_milliseconds = total_milliseconds
+        self.detection_line = []
+        self.unique_results = []
+
+
 def analyze_video(recording_id):
-    recording = db.get_recording_by_id(recording_id)
-    if not recording:
+    rec = db.get_recording_by_id(recording_id)
+    if not rec:
         print(f"Recording with ID {recording_id} not found!")
         return
+    if rec.status == "FINISHED":
+        print(f"Recording with ID {recording_id} already analyzed!")
+        return
+    db.update_recording_status(rec.id, "PROCESSING")
 
-    video_name = recording['video_name']
-    video_path = os.path.join(STORAGE_PATH, VIDEO_FOLDER, video_name)
-    unique_video_folder = video_name.split(".")[0] + "_" + str(int(time.time_ns() / 1_000_000))
+    # Prepare state constants
+    video_path = os.path.join(STORAGE_PATH, VIDEO_FOLDER, rec.video_name)
+    unique_records_folder = rec.video_name.split(".")[0] + "_" + str(int(time.time_ns() / 1_000_000))
+    records_path = os.path.join(STORAGE_PATH, RECORD_FOLDER, unique_records_folder)
     cap = cv2.VideoCapture(video_path)
     video_frames_total = cap.get(cv2.CAP_PROP_FRAME_COUNT)
+    video_milliseconds_total = int(cap.get(cv2.CAP_PROP_FRAME_COUNT) * 1000 / cap.get(cv2.CAP_PROP_FPS))
+
+    state = AnalysisState(rec.id, cap, unique_records_folder, records_path, video_frames_total,
+                          video_milliseconds_total)
 
     # Detecting and Tracking parts
     tracker = Sort(max_age=20, min_hits=3, iou_threshold=0.3)
-    total_count = []
 
     while cap.isOpened():
         success, original_image = cap.read()
         if not success:
             break
 
+        # TODO: more clever placement of detection line (use another AI to find horizon on the image?)
+        state.detection_line = [0, original_image.shape[0] // 2, original_image.shape[1], original_image.shape[0] // 2]
+        state.current_frame = int(cap.get(cv2.CAP_PROP_POS_FRAMES))
+        state.current_millisecond = int(cap.get(cv2.CAP_PROP_POS_MSEC))
+
         # Filling tracker with detected objects at this frame
         detections = collect_detections(original_image)
         tracker_results = tracker.update(detections)
 
-        # Drawing
-        detection_line = [0, original_image.shape[0] // 2, original_image.shape[1], original_image.shape[0] // 2]
-        total_count = record_objects(tracker_results, detection_line, total_count, original_image, unique_video_folder,
-                                     cap, recording_id)
+        # Storing detected objects
+        find_records(tracker_results, original_image, state)
 
-        video_frame = cap.get(cv2.CAP_PROP_POS_FRAMES)
-        print_progress_bar(video_frame, video_frames_total, prefix=video_name,
-                           suffix="| Detected:" + str(len(total_count)), length=50)
+        # Showing progress
+        print_progress_bar(state.current_frame, state.total_frames, prefix=rec.video_name,
+                           suffix="| Detected:" + str(len(state.unique_results)), length=50)
 
-    return len(total_count)
+    db.update_recording_status(rec.id, "FINISHED")
+    return len(state.unique_results)
 
 
 def collect_detections(detectable_image):
@@ -70,21 +97,35 @@ def collect_detections(detectable_image):
     return detection_stack
 
 
-def record_objects(results, limits, unique_results, image, folder_name, cap, recording_id):
-    for result in results:
-        x1, y1, x2, y2, result_id = map(int, result)
+def find_records(records, image, state: AnalysisState):
+    limits = state.detection_line
+    for result in records:
+        x1, y1, x2, y2 = map(int, result[:4])
+        confidence = result[4]
+        record_id = int(result[5])
         w, h = x2 - x1, y2 - y1
         center_x, center_y = x1 + w // 2, y1 + h // 2
 
         if limits[0] < center_x < limits[2] and limits[1] - VERTICAL_GAP < center_y < limits[1] + VERTICAL_GAP:
-            if unique_results.count(result_id) == 0:
-                # Object detected
-                unique_results.append(result_id)
-                # outline the hole at the frame and store locally
-                cv2.rectangle(image, (x1, y1), (x2, y2), (0, 0, 255), 2)
-                store_record(folder_name, result_id, image, cap, recording_id)
+            if record_id not in state.unique_results:  # Object detected
+                state.unique_results.append(record_id)
+                image_copy = image.copy()
+                cv2.rectangle(image_copy, (x1, y1), (x2, y2), (0, 0, 255), 2)  # outline the hole at the frame
+                store_record(record_id, image_copy, confidence, state)
 
-    return unique_results
+
+def store_record(record_id, image, confidence, state: AnalysisState):
+    if not os.path.exists(state.records_path):
+        os.makedirs(state.records_path)
+
+    record_file_name = "rec_" + str(record_id) + ".jpg"
+    record_file_path = os.path.join(state.records_path, record_file_name)
+    cv2.imwrite(record_file_path, image)
+    short_path = os.path.join(state.records_folder, record_file_name)
+
+    detection = Detection(None, state.recording_id, short_path, state.current_frame, state.total_frames,
+                          state.current_millisecond, state.total_milliseconds, confidence, datetime.utcnow())
+    db.save_detection(detection)
 
 
 def print_progress_bar(iteration, total, prefix='', suffix='', decimals=1, length=100, fill='█'):
@@ -93,23 +134,3 @@ def print_progress_bar(iteration, total, prefix='', suffix='', decimals=1, lengt
     bar = fill * filled_length + '-' * (length - filled_length)
 
     print(f'\r{prefix} |{bar}| {percent}% {suffix}')
-
-
-def store_record(folder, record_id, image, cap, recording_id):
-    record_path = os.path.join(STORAGE_PATH, RECORD_FOLDER, folder)
-    if not os.path.exists(record_path):
-        os.makedirs(record_path)
-
-    record_file_name = "rec_" + str(record_id) + ".jpg"
-    record_file = os.path.join(record_path, record_file_name)
-    cv2.imwrite(record_file, image)
-    print(record_file)
-
-    frame_number = int(cap.get(cv2.CAP_PROP_POS_FRAMES))
-    file_name = os.path.join(folder, record_file_name)
-    total_frame_number = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
-    video_millisecond = int(cap.get(cv2.CAP_PROP_POS_MSEC))
-    total_video_millisecond = int(cap.get(cv2.CAP_PROP_FRAME_COUNT) * 1000 / cap.get(cv2.CAP_PROP_FPS))
-    confidence = 0.95
-    db.save_detection(recording_id, file_name, frame_number, total_frame_number, video_millisecond,
-                      total_video_millisecond, confidence)

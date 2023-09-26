@@ -1,7 +1,7 @@
 version: '3.1'
 
 services:
-  mysql:
+  ph-mysql:
     image: mysql:8.0.33
     restart: on-failure
     environment:

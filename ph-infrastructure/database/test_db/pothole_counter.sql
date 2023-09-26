@@ -15,11 +15,12 @@ select CONCAT('storage engine: ', @@default_storage_engine) as INFO */;
 
 CREATE TABLE recordings
 (
-    id                 INT          NOT NULL AUTO_INCREMENT,
+    id                 INT                                                  NOT NULL AUTO_INCREMENT,
 
-    video_name         VARCHAR(255) NOT NULL,
-    original_file_name VARCHAR(255) NOT NULL,
-    created_at         TIMESTAMP    NOT NULL,
+    video_name         VARCHAR(255)                                         NOT NULL,
+    original_file_name VARCHAR(255)                                         NOT NULL,
+    status             ENUM ('CREATED', 'PROCESSING', 'FINISHED', 'FAILED') NOT NULL DEFAULT 'CREATED',
+    created_at         TIMESTAMP                                            NOT NULL,
 
     UNIQUE (video_name),
     PRIMARY KEY (id)
