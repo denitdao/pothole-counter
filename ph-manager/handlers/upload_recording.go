@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"errors"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"io"
 	"log"
@@ -13,9 +14,6 @@ import (
 	"time"
 )
 
-// TODO: steps to implement this page
-//  make reusable component to inject into the page and return from endpoint
-
 type (
 	UploadRecordingComponent struct {
 		UploadStatus UploadStatus
@@ -26,6 +24,7 @@ type (
 		RecordingID int
 		VideoName   string
 		Duration    int
+		Processing  bool
 		UploadedAt  time.Time
 
 		HasVideo bool
@@ -45,6 +44,12 @@ func UploadRecording(c *gin.Context) {
 		uploadStatus.VideoName = recording.OriginalFileName
 		uploadStatus.Duration = -1 // todo: get duration
 		uploadStatus.UploadedAt = recording.CreatedAt
+
+		resp, err := http.Post(fmt.Sprintf("%s/analyze/%d", util.GetProperty("ph.detector.url"), recording.ID), "application/json", nil)
+		if err == nil && resp.StatusCode == http.StatusOK {
+			uploadStatus.Processing = true
+			println("Successfully sent recording to analyzer")
+		}
 	}
 
 	c.HTML(http.StatusOK, "upload-recording.gohtml", UploadRecordingComponent{
@@ -78,42 +83,4 @@ func storeVideo(r *http.Request) (db.Recording, error) {
 	return db.CreateRecording(filepath.Base(videoDest.Name()), originalFileName, time.Now())
 }
 
-// isGPXPresent(w, r) && storeGPX(w, r)
-func storeGPX(w http.ResponseWriter, r *http.Request) bool {
-	storagePath := util.GetProperty("storage.path")
-	gpxFolder := util.GetProperty("gpx.folder")
-	gpxDestPath := filepath.Join(storagePath, gpxFolder, "file.gpx") // todo: unique filename
-
-	gpxFile, _, err := r.FormFile("gpx")
-	if err != nil {
-		http.Error(w, "Unable to read GPX file", http.StatusBadRequest)
-		return true
-	}
-	defer gpxFile.Close()
-
-	gpxDest, err := os.Create(gpxDestPath)
-	if err != nil {
-		http.Error(w, "Unable to save GPX file", http.StatusInternalServerError)
-		return true
-	}
-	defer gpxDest.Close()
-	io.Copy(gpxDest, gpxFile)
-	return false
-}
-
-func isGPXPresent(w http.ResponseWriter, r *http.Request) bool {
-	gpxFile, _, err := r.FormFile("gpx")
-	if err != nil {
-		if errors.Is(err, http.ErrMissingFile) {
-			return false
-		} else {
-			http.Error(w, "Unable to read GPX file", http.StatusBadRequest)
-			return false
-		}
-	}
-
-	if gpxFile != nil {
-		defer gpxFile.Close()
-	}
-	return true
-}
+// TODO: isGPXPresent(w, r) && storeGPX(w, r)
