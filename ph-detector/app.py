@@ -1,10 +1,12 @@
+import logging
 import threading
 
 from flask import Flask, jsonify
 
-from detector import analyze_video
+from detector import Analyzer
 
 app = Flask(__name__)
+logging.basicConfig(level=logging.INFO, format='[%(asctime)s][%(threadName)s] %(levelname)8s: %(message)s')
 
 
 @app.route('/')
@@ -21,8 +23,9 @@ def analyze(recording_id):
 
 
 def background_analyze(recording_id):
-    ph_number = analyze_video(recording_id)
-    print(f"Analysis finished.\nRecording Id: {recording_id}   PH number: {ph_number}")
+    logging.info(f"Analysis started. \tRecording Id: {recording_id}")
+    ph_number = Analyzer().analyze_video(recording_id)
+    logging.info(f"Analysis finished.\tRecording Id: {recording_id}\tPH number: {ph_number}")
 
 
 if __name__ == '__main__':
