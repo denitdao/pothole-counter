@@ -68,8 +68,8 @@ class Analyzer:
                 break
 
             # TODO: more clever placement of detection line (use another AI to find horizon on the image?)
-            state.detection_line = [0, original_image.shape[0] // 2, original_image.shape[1],
-                                    original_image.shape[0] // 2]
+            state.detection_line = [0, original_image.shape[0] * 3 // 5, original_image.shape[1],
+                                    original_image.shape[0] * 3 // 5]
             state.current_frame = int(cap.get(cv2.CAP_PROP_POS_FRAMES))
             state.current_millisecond = int(cap.get(cv2.CAP_PROP_POS_MSEC))
 

@@ -91,14 +91,15 @@ if __name__ == '__main__':
         success, original_image = cap.read()
         if not success:
             break
-        DETECTION_LINE = [0, original_image.shape[0] // 2, original_image.shape[1], original_image.shape[0] // 2]
+        DETECTION_LINE = [0, original_image.shape[0] * 3 // 5, original_image.shape[1], original_image.shape[0] * 3 // 5]
 
         # Filling tracker with detected objects at this frame
         detections = process_detections(original_image, mask)
         tracker_results = tracker.update(detections)
 
         # Drawing
-        final_image = cvzone.overlayPNG(original_image, graphics, (0, 0))
+        # final_image = cvzone.overlayPNG(original_image, graphics, (0, 0))
+        final_image = original_image
         final_image = draw_objects(final_image, tracker_results, DETECTION_LINE, total_count)
 
         cv2.imshow("Image", final_image)
