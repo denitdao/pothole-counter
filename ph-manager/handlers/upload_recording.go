@@ -46,9 +46,14 @@ func UploadRecording(c *gin.Context) {
 		uploadStatus.UploadedAt = recording.CreatedAt
 
 		resp, err := http.Post(fmt.Sprintf("%s/analyze/%d", util.GetProperty("ph.detector.url"), recording.ID), "application/json", nil)
-		if err == nil && resp.StatusCode == http.StatusOK {
-			uploadStatus.Processing = true
-			println("Successfully sent recording to analyzer")
+		if err == nil {
+			if resp.StatusCode == http.StatusOK {
+				println("Successfully sent recording to analyzer")
+				uploadStatus.Processing = true
+			} else {
+				println("Failed to send recording to analyzer")
+				err = errors.New("failed to send recording to analyzer")
+			}
 		}
 	}
 

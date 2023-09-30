@@ -9,5 +9,32 @@
     <a href="/">Back</a>
 </div>
 
+<div class="p-10">
+    <h1 class="text-2xl font-bold">Discovered Potholes</h1>
+    <span class="text-red-500">{{ .Error }}</span>
+
+    <div class="space-y-4">
+        {{ range .Detections }}
+            <div class="flex items-center p-4 bg-white">
+                <div class="w-2/5 p-2">
+                    <img src="/images/{{ .FileName }}" alt="Placeholder Image"
+                         class="max-w-full h-auto object-cover">
+                </div>
+
+                <div class="flex-1 p-2">
+                    <div class="text-xl font-semibold mb-2">ID: {{ .ID }}</div>
+                    <div>Confidence: {{ .Confidence }}%</div>
+                    <div>Frame: {{ .FrameNumber }}/{{ .TotalFrameNumber }}</div>
+                    <button class="mt-2 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 focus:outline-none">
+                        Detele
+                    </button>
+                </div>
+            </div>
+        {{ end }}
+
+    </div>
+
+</div>
+
 </body>
 </html>

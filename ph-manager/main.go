@@ -4,6 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"html/template"
 	"log"
+	"path/filepath"
 	"ph-manager/db"
 	"ph-manager/handlers"
 	"ph-manager/util"
@@ -16,6 +17,8 @@ func main() {
 	// Handle static files
 	router := gin.Default()
 	router.Static("/static", "./static")
+	router.Static("/images",
+		filepath.Join(util.GetProperty("storage.path"), util.GetProperty("record.folder")))
 	router.SetFuncMap(template.FuncMap{
 		"formatDate": util.FormatDate,
 	})

@@ -11,13 +11,15 @@ type (
 	}
 
 	Detection struct {
-		ID               int
-		RecordingID      int
-		FileName         string
-		FrameNumber      int
-		VideoMillisecond int
-		Confidence       float32
-		CreatedAt        time.Time
+		ID                    int
+		RecordingID           int
+		FileName              string
+		FrameNumber           int
+		TotalFrameNumber      int
+		VideoMillisecond      int
+		TotalVideoMillisecond int
+		Confidence            float32
+		CreatedAt             time.Time
 	}
 
 	GPX struct {

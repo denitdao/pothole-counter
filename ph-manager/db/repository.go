@@ -45,3 +45,43 @@ func GetRecordings() ([]Recording, error) {
 
 	return recordings, nil
 }
+
+func GetDetections(recordingID int) ([]Detection, error) {
+	rows, err := DB.Query(`
+		SELECT id, 
+		       recording_id, 
+		       file_name, 
+		       frame_number, 
+		       total_frame_number, 
+		       video_millisecond, 
+		       total_video_millisecond,
+		       confidence, 
+		       created_at 
+		FROM detections 
+		WHERE recording_id = ?
+		`, recordingID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var detections []Detection
+	for rows.Next() {
+		var detection Detection
+		err := rows.Scan(&detection.ID,
+			&detection.RecordingID,
+			&detection.FileName,
+			&detection.FrameNumber,
+			&detection.TotalFrameNumber,
+			&detection.VideoMillisecond,
+			&detection.TotalVideoMillisecond,
+			&detection.Confidence,
+			&detection.CreatedAt)
+		if err != nil {
+			return nil, err
+		}
+		detections = append(detections, detection)
+	}
+
+	return detections, nil
+}
