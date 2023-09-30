@@ -21,6 +21,7 @@ func main() {
 		filepath.Join(util.GetProperty("storage.path"), util.GetProperty("record.folder")))
 	router.SetFuncMap(template.FuncMap{
 		"formatDate": util.FormatDate,
+		"mul":        util.Mul,
 	})
 	router.LoadHTMLGlob("templates/**/*.gohtml")
 

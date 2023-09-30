@@ -5,12 +5,17 @@
     <title>Add Recording</title>
 </head>
 <body>
+<header class="bg-white shadow-sm">
+    <div class="container mx-auto p-4">
+        <a href="/" class="text-lg text-blue-500 hover:text-blue-600 underline">&lt; go back</a>
+    </div>
+</header>
 
-<div class="m-8">
-    <a href="/">Back</a>
-</div>
+<div class="container mx-auto p-4">
+    <div class="mb-12">
+        <h1 class="text-2xl font-bold">Add Video</h1>
+    </div>
 
-<div>
     {{ template "upload-recording.gohtml" . }}
 </div>
 </body>

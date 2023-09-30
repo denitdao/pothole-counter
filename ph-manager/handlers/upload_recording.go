@@ -57,6 +57,8 @@ func UploadRecording(c *gin.Context) {
 		}
 	}
 
+	// TODO: perform redirect to view page if all OK
+	//  otherwise, return statuses to display
 	c.HTML(http.StatusOK, "upload-recording.gohtml", UploadRecordingComponent{
 		UploadStatus: uploadStatus,
 		Error:        err,
