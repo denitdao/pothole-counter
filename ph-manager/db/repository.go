@@ -18,8 +18,19 @@ func CreateRecording(recording Recording) (Recording, error) {
 	return recording, nil
 }
 
+func GetRecording(id int) (Recording, error) {
+	var recording Recording
+	err := DB.QueryRow(`SELECT id, video_name, original_file_name, created_at FROM recordings WHERE id = ? and deleted = 0`, id).
+		Scan(&recording.ID, &recording.VideoName, &recording.OriginalFileName, &recording.CreatedAt)
+	if err != nil {
+		return Recording{}, err
+	}
+
+	return recording, nil
+}
+
 func GetRecordings() ([]Recording, error) {
-	rows, err := DB.Query("SELECT id, video_name, original_file_name, created_at FROM recordings")
+	rows, err := DB.Query(`SELECT id, video_name, original_file_name, created_at FROM recordings WHERE deleted = 0`)
 	if err != nil {
 		return nil, err
 	}
@@ -50,7 +61,7 @@ func GetDetections(recordingID int) ([]Detection, error) {
 		       confidence, 
 		       created_at 
 		FROM detections 
-		WHERE recording_id = ?
+		WHERE recording_id = ? and deleted = 0
 		`, recordingID)
 	if err != nil {
 		return nil, err

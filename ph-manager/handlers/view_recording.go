@@ -5,12 +5,12 @@ import (
 	"net/http"
 	"ph-manager/db"
 	"strconv"
-	"strings"
 )
 
 type (
 	ViewRecordingPage struct {
 		RecordingID int
+		VideoName   string
 		Detections  []Detection
 		Error       error
 	}
@@ -25,20 +25,22 @@ type (
 )
 
 func ViewRecording(c *gin.Context) {
-	id, err := strconv.Atoi(strings.TrimPrefix(c.Request.URL.Path, "/view-recording/"))
+	id, err := strconv.Atoi(c.Param("id"))
 
 	if err != nil {
-		c.HTML(http.StatusOK, "view-recording.gohtml", ViewRecordingPage{
-			Error: err,
-		})
+		renderFailureVR(c, err)
+		return
+	}
+
+	recording, err := db.GetRecording(id)
+	if err != nil {
+		renderFailureVR(c, err)
 		return
 	}
 
 	detections, err := db.GetDetections(id)
 	if err != nil {
-		c.HTML(http.StatusOK, "view-recording.gohtml", ViewRecordingPage{
-			Error: err,
-		})
+		renderFailureVR(c, err)
 		return
 	}
 
@@ -55,7 +57,14 @@ func ViewRecording(c *gin.Context) {
 
 	p := ViewRecordingPage{
 		RecordingID: id,
+		VideoName:   recording.VideoName,
 		Detections:  viewDetections,
 	}
 	c.HTML(http.StatusOK, "view-recording.gohtml", p)
+}
+
+func renderFailureVR(c *gin.Context, err error) {
+	c.HTML(http.StatusBadRequest, "view-recording.gohtml", UploadRecordingComponent{
+		Error: err,
+	})
 }

@@ -19,6 +19,8 @@ func main() {
 	router.Static("/static", "./static")
 	router.Static("/images",
 		filepath.Join(util.GetProperty("storage.path"), util.GetProperty("record.folder")))
+	router.Static("/videos",
+		filepath.Join(util.GetProperty("storage.path"), util.GetProperty("video.folder")))
 	router.SetFuncMap(template.FuncMap{
 		"formatDate": util.FormatDate,
 		"mul":        util.Mul,
