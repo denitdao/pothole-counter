@@ -22,8 +22,9 @@ func main() {
 	router.Static("/videos",
 		filepath.Join(util.GetProperty("storage.path"), util.GetProperty("video.folder")))
 	router.SetFuncMap(template.FuncMap{
-		"formatDate": util.FormatDate,
-		"mul":        util.Mul,
+		"formatDate":  util.FormatDate,
+		"mul":         util.Mul,
+		"formatFloat": util.FormatFloat,
 	})
 	router.LoadHTMLGlob("templates/**/*.gohtml")
 

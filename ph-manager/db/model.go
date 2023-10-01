@@ -4,10 +4,12 @@ import "time"
 
 type (
 	Recording struct {
-		ID               int
-		VideoName        string
-		OriginalFileName string
-		CreatedAt        time.Time
+		ID                 int
+		VideoName          string
+		OriginalFileName   string
+		Status             string
+		CreatedAt          time.Time
+		NumberOfDetections int
 	}
 
 	Detection struct {

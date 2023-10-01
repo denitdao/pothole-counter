@@ -17,28 +17,52 @@
     </div>
     <span class="text-red-500">{{ .Error }}</span>
 
-    <div class="flex mb-6 bg-white">
+    <div class="flex mb-16 bg-white">
         <div class="flex-1 w-2/5">
             <div class="flex items-center">
                 <span class="w-4 h-4 rounded-full opacity-75 bg-green-600"></span>
                 <p class="ml-2 text-sm font-medium">Video Uploaded</p>
             </div>
-            <div class="flex items-center">
-                <span class="w-4 h-4 animate-pulse rounded-full bg-blue-400"></span>
-                <p class="ml-2 text-sm font-medium">Analyzing...</p>
-            </div>
+            {{ if eq .Status "CREATED" }}
+                <div class="flex items-center">
+                    <span class="w-4 h-4 animate-pulse rounded-full bg-gray-200"></span>
+                    <p class="ml-2 text-sm font-medium text-blue-500 hover:text-blue-600 underline">Trigger Analysis</p>
+                </div>
+            {{ else if eq .Status "PROCESSING" }}
+                <div class="flex items-center">
+                    <span class="w-4 h-4 animate-pulse rounded-full bg-blue-400"></span>
+                    <p class="ml-2 text-sm font-medium">Analyzing...</p>
+                </div>
+            {{ else if eq .Status "FINISHED" }}
+                <div class="flex items-center">
+                    <span class="w-4 h-4 rounded-full opacity-75 bg-green-600"></span>
+                    <p class="ml-2 text-sm font-medium">Analysis Complete</p>
+                </div>
+            {{ else if eq .Status "FAILED" }}
+                <div class="flex items-center">
+                    <span class="w-4 h-4 rounded-full opacity-75 bg-red-500"></span>
+                    <p class="ml-2 text-sm font-medium text-blue-500 hover:text-blue-600 underline">
+                        Analysis Failed (trigger again)
+                    </p>
+                </div>
+            {{ end }}
             <div class="flex items-center">
                 <span class="w-4 h-4 rounded-full opacity-75 bg-gray-200"></span>
                 <p class="ml-2 text-sm font-medium text-blue-500 hover:text-blue-600 underline">GPX</p>
             </div>
         </div>
         <div class="flex-1 w-3/5">
-            <video controls>
+            <video controls hx-preserve>
                 <source src="/videos/{{ .VideoName }}" type="video/mp4">
                 Your browser does not support the video tag.
             </video>
         </div>
     </div>
+
+    {{/*TODO: add analyze button to send this recording for analysis*/}}
+
+    {{/*TODO: show stacked bar graph of N potholes at time in the video */}}
+    {{/*https://chartscss.org/components/stacked/*/}}
 
     <div>
         {{ range .Detections }}
@@ -56,7 +80,7 @@
                             </button>
                             {{/*TODO: implement detele*/}}
                         </div>
-                        <div>Confidence: {{ mul .Confidence 100 }}%</div>
+                        <div>Confidence: {{ formatFloat (mul .Confidence 100) }}%</div>
                         <div>Frame: {{ .FrameNumber }}/{{ .TotalFrameNumber }}</div>
                     </div>
                 </div>

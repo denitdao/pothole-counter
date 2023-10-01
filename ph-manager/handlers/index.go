@@ -14,8 +14,8 @@ type (
 
 	RecordingRow struct {
 		ID       int
+		Status   string
 		Potholes int
-		HasGPX   bool
 		DateTime time.Time
 	}
 )
@@ -32,8 +32,8 @@ func Index(c *gin.Context) {
 	for i, recording := range recordings {
 		p.RecordingRows[i] = RecordingRow{
 			ID:       recording.ID,
-			Potholes: -1,    // todo: get potholes
-			HasGPX:   false, // todo: get gpx
+			Status:   recording.Status,
+			Potholes: recording.NumberOfDetections,
 			DateTime: recording.CreatedAt,
 		}
 	}

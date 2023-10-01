@@ -20,8 +20,8 @@ func CreateRecording(recording Recording) (Recording, error) {
 
 func GetRecording(id int) (Recording, error) {
 	var recording Recording
-	err := DB.QueryRow(`SELECT id, video_name, original_file_name, created_at FROM recordings WHERE id = ? and deleted = 0`, id).
-		Scan(&recording.ID, &recording.VideoName, &recording.OriginalFileName, &recording.CreatedAt)
+	err := DB.QueryRow(`SELECT id, video_name, original_file_name, status, created_at FROM recordings WHERE id = ? and deleted = FALSE`, id).
+		Scan(&recording.ID, &recording.VideoName, &recording.OriginalFileName, &recording.Status, &recording.CreatedAt)
 	if err != nil {
 		return Recording{}, err
 	}
@@ -30,7 +30,22 @@ func GetRecording(id int) (Recording, error) {
 }
 
 func GetRecordings() ([]Recording, error) {
-	rows, err := DB.Query(`SELECT id, video_name, original_file_name, created_at FROM recordings WHERE deleted = 0`)
+	rows, err := DB.Query(`
+		SELECT r.id,
+			   video_name,
+			   original_file_name,
+			   status,
+			   r.created_at,
+			   COUNT(d.id) AS number_of_detections
+		FROM recordings r
+			LEFT JOIN detections d ON r.id = d.recording_id AND d.deleted = FALSE
+		WHERE r.deleted = FALSE
+		GROUP BY r.id,
+				 video_name,
+				 original_file_name,
+				 status,
+				 r.created_at
+		ORDER BY r.id`)
 	if err != nil {
 		return nil, err
 	}
@@ -39,7 +54,7 @@ func GetRecordings() ([]Recording, error) {
 	var recordings []Recording
 	for rows.Next() {
 		var recording Recording
-		err := rows.Scan(&recording.ID, &recording.VideoName, &recording.OriginalFileName, &recording.CreatedAt)
+		err := rows.Scan(&recording.ID, &recording.VideoName, &recording.OriginalFileName, &recording.Status, &recording.CreatedAt, &recording.NumberOfDetections)
 		if err != nil {
 			return nil, err
 		}
@@ -61,7 +76,7 @@ func GetDetections(recordingID int) ([]Detection, error) {
 		       confidence, 
 		       created_at 
 		FROM detections 
-		WHERE recording_id = ? and deleted = 0
+		WHERE recording_id = ? and deleted = FALSE
 		`, recordingID)
 	if err != nil {
 		return nil, err

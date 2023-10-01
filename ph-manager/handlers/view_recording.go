@@ -11,6 +11,7 @@ type (
 	ViewRecordingPage struct {
 		RecordingID int
 		VideoName   string
+		Status      string
 		Detections  []Detection
 		Error       error
 	}
@@ -58,6 +59,7 @@ func ViewRecording(c *gin.Context) {
 	p := ViewRecordingPage{
 		RecordingID: id,
 		VideoName:   recording.VideoName,
+		Status:      recording.Status,
 		Detections:  viewDetections,
 	}
 	c.HTML(http.StatusOK, "view-recording.gohtml", p)
