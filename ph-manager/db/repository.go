@@ -1,13 +1,9 @@
 package db
 
-import (
-	"time"
-)
-
-func CreateRecording(videoName string, originalFileName string, createdAt time.Time) (Recording, error) {
+func CreateRecording(recording Recording) (Recording, error) {
 	result, err := DB.Exec(
 		"INSERT INTO recordings (video_name, original_file_name, created_at) VALUES (?, ?, ?)",
-		videoName, originalFileName, createdAt,
+		recording.VideoName, recording.OriginalFileName, recording.CreatedAt,
 	)
 	if err != nil {
 		return Recording{}, err
@@ -18,12 +14,8 @@ func CreateRecording(videoName string, originalFileName string, createdAt time.T
 		return Recording{}, err
 	}
 
-	return Recording{
-		ID:               int(id),
-		VideoName:        videoName,
-		OriginalFileName: originalFileName,
-		CreatedAt:        createdAt,
-	}, nil
+	recording.ID = int(id)
+	return recording, nil
 }
 
 func GetRecordings() ([]Recording, error) {

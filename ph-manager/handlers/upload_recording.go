@@ -21,14 +21,8 @@ type (
 	}
 
 	UploadStatus struct {
-		RecordingID int
-		VideoName   string
-		Duration    int
-		Processing  bool
-		UploadedAt  time.Time
-
-		HasVideo bool
-		HasGPX   bool
+		RecordingID       int
+		OriginalVideoName string
 	}
 )
 
@@ -37,32 +31,28 @@ func UploadRecording(c *gin.Context) {
 
 	recording, err := storeVideo(c.Request)
 	if err != nil {
-		uploadStatus.HasVideo = false
-	} else {
-		uploadStatus.HasVideo = true
-		uploadStatus.RecordingID = recording.ID
-		uploadStatus.VideoName = recording.OriginalFileName
-		uploadStatus.Duration = -1 // todo: get duration
-		uploadStatus.UploadedAt = recording.CreatedAt
+		renderFailureUR(c, uploadStatus, err)
+		return
+	}
+	uploadStatus.OriginalVideoName = recording.OriginalFileName
 
-		resp, err := http.Post(fmt.Sprintf("%s/analyze/%d", util.GetProperty("ph.detector.url"), recording.ID), "application/json", nil)
-		if err == nil {
-			if resp.StatusCode == http.StatusOK {
-				println("Successfully sent recording to analyzer")
-				uploadStatus.Processing = true
-			} else {
-				println("Failed to send recording to analyzer")
-				err = errors.New("failed to send recording to analyzer")
-			}
-		}
+	recording, err = db.CreateRecording(recording)
+	if err != nil {
+		renderFailureUR(c, uploadStatus, err)
+		return
+	}
+	uploadStatus.RecordingID = recording.ID
+
+	resp, err := http.Post(fmt.Sprintf("%s/analyze/%d", util.GetProperty("ph.detector.url"), recording.ID), "application/json", nil)
+	if err != nil || resp.StatusCode != http.StatusOK {
+		println("Failed to send recording to analyzer")
+		err = errors.New("failed to send recording to analyzer")
+		renderFailureUR(c, uploadStatus, err)
+		return
 	}
 
-	// TODO: perform redirect to view page if all OK
-	//  otherwise, return statuses to display
-	c.HTML(http.StatusOK, "upload-recording.gohtml", UploadRecordingComponent{
-		UploadStatus: uploadStatus,
-		Error:        err,
-	})
+	c.Status(http.StatusOK)
+	c.Header("HX-Redirect", fmt.Sprintf("/view-recording/%d", recording.ID))
 }
 
 func storeVideo(r *http.Request) (db.Recording, error) {
@@ -72,8 +62,6 @@ func storeVideo(r *http.Request) (db.Recording, error) {
 		return db.Recording{}, errors.New("unable to read video")
 	}
 	defer videoFile.Close()
-
-	originalFileName := header.Filename
 
 	storagePath, videoFolder := util.GetProperty("storage.path"), util.GetProperty("video.folder")
 	videoDestPath := filepath.Join(storagePath, videoFolder)
@@ -87,7 +75,18 @@ func storeVideo(r *http.Request) (db.Recording, error) {
 		return db.Recording{}, errors.New("unable to save video")
 	}
 
-	return db.CreateRecording(filepath.Base(videoDest.Name()), originalFileName, time.Now())
+	return db.Recording{
+		VideoName:        filepath.Base(videoDest.Name()),
+		OriginalFileName: header.Filename,
+		CreatedAt:        time.Now(),
+	}, nil
+}
+
+func renderFailureUR(c *gin.Context, uploadStatus UploadStatus, err error) {
+	c.HTML(http.StatusOK, "upload-recording.gohtml", UploadRecordingComponent{
+		UploadStatus: uploadStatus,
+		Error:        err,
+	})
 }
 
 // TODO: isGPXPresent(w, r) && storeGPX(w, r)
