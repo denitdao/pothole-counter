@@ -22,6 +22,8 @@ CREATE TABLE recordings
     status             ENUM ('CREATED', 'PROCESSING', 'FINISHED', 'FAILED') NOT NULL DEFAULT 'CREATED',
     created_at         TIMESTAMP                                            NOT NULL,
 
+    deleted            BOOLEAN                                              NOT NULL DEFAULT FALSE,
+
     UNIQUE (video_name),
     PRIMARY KEY (id)
 );
@@ -38,6 +40,8 @@ CREATE TABLE detections
     total_video_millisecond INT          NOT NULL,
     confidence              FLOAT        NOT NULL,
     created_at              TIMESTAMP    NOT NULL,
+
+    deleted                 BOOLEAN      NOT NULL DEFAULT FALSE,
 
     FOREIGN KEY (recording_id) REFERENCES recordings (id) ON DELETE CASCADE,
     PRIMARY KEY (id, recording_id)
