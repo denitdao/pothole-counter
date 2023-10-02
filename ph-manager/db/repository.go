@@ -103,3 +103,12 @@ func GetDetections(recordingID int) ([]Detection, error) {
 
 	return detections, nil
 }
+
+func DeleteDetection(id int) error {
+	_, err := DB.Exec("UPDATE detections SET deleted = TRUE WHERE id = ?", id)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
