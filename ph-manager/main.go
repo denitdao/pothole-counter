@@ -33,6 +33,7 @@ func main() {
 	router.GET("/add-recording", handlers.AddRecording)
 	router.GET("/view-recording/:id", handlers.ViewRecording)
 	router.POST("/upload-recording", handlers.UploadRecording)
+	router.POST("/analyze/:id", handlers.AnalyzeRecording)
 
 	// Start server
 	log.Fatal(router.Run(":8080"))
