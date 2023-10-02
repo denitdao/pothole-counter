@@ -7,7 +7,7 @@ from ultralytics import YOLO
 from sort import *
 
 CLASS_NAMES = ["pothole"]
-DETECTION_LINE = [400, 297, 673, 297]  # TODO: should be dynamic based on the video params
+DETECTION_LINE = [400, 297, 673, 297]
 VERTICAL_GAP = 25
 
 
@@ -67,7 +67,6 @@ def draw_objects(image, results, limits, unique_results):
 
         if limits[0] < center_x < limits[2] and limits[1] - VERTICAL_GAP < center_y < limits[1] + VERTICAL_GAP:
             if unique_results.count(result_id) == 0:
-                # Object detected. TODO: image of the detection could be saved with metadata and location.
                 unique_results.append(result_id)
                 cv2.line(image, (limits[0], limits[1]), (limits[2], limits[3]), (0, 255, 0), 4)
 
@@ -107,12 +106,3 @@ if __name__ == '__main__':
         handle_keys()
 
     print("Total Count: ", len(total_count))
-    # TODO: save all recorded potholes with metadata to the database.
-    #  in the UI allow to remove, look at the image, etc.
-
-
-# OUTSTANDING QUESTIONS:
-# How to use custom model for pothole detection? +
-# How to run this script as some service?
-# How to save all detected potholes to the database?
-# Optimization: how to set correct detection line and tune to avoid potholes that are too close to each other?

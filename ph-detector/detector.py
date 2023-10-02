@@ -51,42 +51,48 @@ class Analyzer:
             return
         self.db.update_recording_status(rec.id, "PROCESSING")
 
-        # Prepare state constants
-        video_path = os.path.join(STORAGE_PATH, VIDEO_FOLDER, rec.video_name)
-        unique_records_folder = rec.video_name.split(".")[0] + "_" + str(int(time.time_ns() / 1_000_000))
-        records_path = os.path.join(STORAGE_PATH, RECORD_FOLDER, unique_records_folder)
-        cap = cv2.VideoCapture(video_path)
-        video_frames_total = cap.get(cv2.CAP_PROP_FRAME_COUNT)
-        video_milliseconds_total = int(cap.get(cv2.CAP_PROP_FRAME_COUNT) * 1_000 / cap.get(cv2.CAP_PROP_FPS))
+        try:
+            # Prepare state constants
+            video_path = os.path.join(STORAGE_PATH, VIDEO_FOLDER, rec.video_name)
+            unique_records_folder = rec.video_name.split(".")[0] + "_" + str(int(time.time_ns() / 1_000_000))
+            records_path = os.path.join(STORAGE_PATH, RECORD_FOLDER, unique_records_folder)
+            cap = cv2.VideoCapture(video_path)
+            video_frames_total = cap.get(cv2.CAP_PROP_FRAME_COUNT)
+            video_milliseconds_total = int(cap.get(cv2.CAP_PROP_FRAME_COUNT) * 1_000 / cap.get(cv2.CAP_PROP_FPS))
 
-        state = AnalysisState(rec.id, cap, unique_records_folder, records_path, video_frames_total,
-                              video_milliseconds_total)
+            state = AnalysisState(rec.id, cap, unique_records_folder, records_path, video_frames_total,
+                                  video_milliseconds_total)
 
-        while cap.isOpened():
-            success, original_image = cap.read()
-            if not success:
-                break
+            while cap.isOpened():
+                success, original_image = cap.read()
+                if not success:
+                    break
 
-            # TODO: more clever placement of detection line (use another AI to find horizon on the image?)
-            state.detection_line = [0, original_image.shape[0] * 3 // 5, original_image.shape[1],
-                                    original_image.shape[0] * 3 // 5]
-            state.current_frame = int(cap.get(cv2.CAP_PROP_POS_FRAMES))
-            state.current_millisecond = int(cap.get(cv2.CAP_PROP_POS_MSEC))
+                # TODO: more clever placement of detection line (use another AI to find horizon on the image?)
+                state.detection_line = [0, original_image.shape[0] * 3 // 5, original_image.shape[1],
+                                        original_image.shape[0] * 3 // 5]
+                state.current_frame = int(cap.get(cv2.CAP_PROP_POS_FRAMES))
+                state.current_millisecond = int(cap.get(cv2.CAP_PROP_POS_MSEC))
 
-            # Filling tracker with detected objects at this frame
-            detections = collect_detections(original_image)
-            tracker_results = self.tracker.update(detections)
+                # Filling tracker with detected objects at this frame
+                detections = collect_detections(original_image)
+                tracker_results = self.tracker.update(detections)
 
-            # Storing detected objects
-            self.find_records(tracker_results, original_image, state)
+                # Storing detected objects
+                self.find_records(tracker_results, original_image, state)
 
-            # Showing progress
-            print_progress_bar(state.current_frame, state.total_frames, prefix=rec.video_name,
-                               suffix="| Detected:" + str(len(state.unique_results)), length=50)
+                # Showing progress
+                print_progress_bar(state.current_frame, state.total_frames, prefix=rec.video_name,
+                                   suffix="| Detected:" + str(len(state.unique_results)), length=50)
 
-        self.db.update_recording_status(rec.id, "FINISHED")
-        self.db.close()
-        return len(state.unique_results)
+            self.db.update_recording_status(rec.id, "FINISHED")
+            self.db.close()
+            return len(state.unique_results)
+        except Exception as e:
+            logging.error("Error while processing video: " + str(e))
+            self.db.update_recording_status(rec.id, "FAILED")
+            self.db.close()
+            return 0
 
     def find_records(self, records, image, state: AnalysisState):
         limits = state.detection_line
