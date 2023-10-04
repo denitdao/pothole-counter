@@ -2,16 +2,18 @@ import pymysql
 
 
 class Recording:
-    def __init__(self, id, video_name, original_file_name, status, created_at):
+    def __init__(self, id, file_name, original_file_name, type, status, created_at):
         self.id = id
-        self.video_name = video_name
+        self.file_name = file_name
         self.original_file_name = original_file_name
+        self.type = type
         self.status = status
         self.created_at = created_at
 
     @classmethod
     def from_dict(cls, data):
-        return cls(data['id'], data['video_name'], data['original_file_name'], data['status'], data['created_at'])
+        return cls(data['id'], data['file_name'], data['original_file_name'], data['type'], data['status'],
+                   data['created_at'])
 
 
 class Detection:

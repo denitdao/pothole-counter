@@ -2,8 +2,8 @@ package db
 
 func CreateRecording(recording Recording) (Recording, error) {
 	result, err := DB.Exec(
-		"INSERT INTO recordings (video_name, original_file_name, created_at) VALUES (?, ?, ?)",
-		recording.VideoName, recording.OriginalFileName, recording.CreatedAt,
+		"INSERT INTO recordings (file_name, original_file_name, note, type, created_at) VALUES (?, ?, ?, ?, ?)",
+		recording.FileName, recording.OriginalFileName, recording.Note, recording.Type, recording.CreatedAt,
 	)
 	if err != nil {
 		return Recording{}, err
@@ -20,8 +20,8 @@ func CreateRecording(recording Recording) (Recording, error) {
 
 func GetRecording(id int) (Recording, error) {
 	var recording Recording
-	err := DB.QueryRow(`SELECT id, video_name, original_file_name, status, created_at FROM recordings WHERE id = ? and deleted = FALSE`, id).
-		Scan(&recording.ID, &recording.VideoName, &recording.OriginalFileName, &recording.Status, &recording.CreatedAt)
+	err := DB.QueryRow(`SELECT id, file_name, original_file_name, note, type, status, created_at FROM recordings WHERE id = ? and deleted = FALSE`, id).
+		Scan(&recording.ID, &recording.FileName, &recording.OriginalFileName, &recording.Note, &recording.Type, &recording.Status, &recording.CreatedAt)
 	if err != nil {
 		return Recording{}, err
 	}
@@ -32,8 +32,10 @@ func GetRecording(id int) (Recording, error) {
 func GetRecordings() ([]Recording, error) {
 	rows, err := DB.Query(`
 		SELECT r.id,
-			   video_name,
+			   r.file_name,
 			   original_file_name,
+			   note,
+			   type,
 			   status,
 			   r.created_at,
 			   COUNT(d.id) AS number_of_detections
@@ -41,8 +43,10 @@ func GetRecordings() ([]Recording, error) {
 			LEFT JOIN detections d ON r.id = d.recording_id AND d.deleted = FALSE
 		WHERE r.deleted = FALSE
 		GROUP BY r.id,
-				 video_name,
+				 r.file_name,
 				 original_file_name,
+				 note,
+				 type,
 				 status,
 				 r.created_at
 		ORDER BY r.id`)
@@ -54,7 +58,7 @@ func GetRecordings() ([]Recording, error) {
 	var recordings []Recording
 	for rows.Next() {
 		var recording Recording
-		err := rows.Scan(&recording.ID, &recording.VideoName, &recording.OriginalFileName, &recording.Status, &recording.CreatedAt, &recording.NumberOfDetections)
+		err := rows.Scan(&recording.ID, &recording.FileName, &recording.OriginalFileName, &recording.Note, &recording.Type, &recording.Status, &recording.CreatedAt, &recording.NumberOfDetections)
 		if err != nil {
 			return nil, err
 		}

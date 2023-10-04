@@ -20,19 +20,21 @@
     </div>
 
     <div class="bg-gray-800 text-white flex py-2">
-        <div class="flex-1 w-1/4 py-2 text-center">ID</div>
-        <div class="flex-1 w-1/4 py-2 text-center">Status</div>
-        <div class="flex-1 w-1/4 py-2 text-center">Potholes</div>
-        <div class="flex-1 w-1/4 py-2 text-center">Time Created</div>
+        <div class="flex-1 w-1/5 py-2 text-center">ID</div>
+        <div class="flex-1 w-1/5 py-2 text-center">Type</div>
+        <div class="flex-1 w-1/5 py-2 text-center">Status</div>
+        <div class="flex-1 w-1/5 py-2 text-center">Potholes</div>
+        <div class="flex-1 w-1/5 py-2 text-center">Time Created</div>
     </div>
     <div class="bg-white">
         {{ range .RecordingRows }}
             <a href="/view-recording/{{ .ID }}" class="block text-gray-700 hover:bg-gray-100">
                 <div class="flex border-t border-gray-200">
-                    <div class="flex-1 w-1/4 text-center py-3">{{ .ID }}</div>
-                    <div class="flex-1 w-1/4 text-center py-3">{{ .Status }}</div>
-                    <div class="flex-1 w-1/4 text-center py-3">{{ .Potholes }}</div>
-                    <div class="flex-1 w-1/4 text-center py-3">{{ formatDate .DateTime }}</div>
+                    <div class="flex-1 w-1/5 text-center py-3">{{ .ID }}</div>
+                    <div class="flex-1 w-1/5 text-center py-3">{{ .Type }}</div>
+                    <div class="flex-1 w-1/5 text-center py-3">{{ .Status }}</div>
+                    <div class="flex-1 w-1/5 text-center py-3">{{ .Potholes }}</div>
+                    <div class="flex-1 w-1/5 text-center py-3">{{ formatDate .DateTime }}</div>
                 </div>
             </a>
         {{ end }}

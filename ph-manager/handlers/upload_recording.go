@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"io"
-	"log"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -45,7 +44,6 @@ func UploadRecording(c *gin.Context) {
 
 	resp, err := http.Post(fmt.Sprintf("%s/analyze/%d", util.GetProperty("ph.detector.url"), recording.ID), "application/json", nil)
 	if err != nil || resp.StatusCode != http.StatusOK {
-		println("Failed to send recording to analyzer")
 		err = errors.New("failed to send recording to analyzer")
 		renderFailureUR(c, uploadStatus, err)
 		return
@@ -58,7 +56,6 @@ func UploadRecording(c *gin.Context) {
 func storeVideo(r *http.Request) (db.Recording, error) {
 	videoFile, header, err := r.FormFile("video")
 	if err != nil {
-		log.Println(err)
 		return db.Recording{}, errors.New("unable to read video")
 	}
 	defer videoFile.Close()
@@ -76,9 +73,11 @@ func storeVideo(r *http.Request) (db.Recording, error) {
 	}
 
 	return db.Recording{
-		VideoName:        filepath.Base(videoDest.Name()),
+		FileName:         filepath.Base(videoDest.Name()),
 		OriginalFileName: header.Filename,
 		CreatedAt:        time.Now(),
+		Note:             r.FormValue("note"),
+		Type:             "VIDEO",
 	}, nil
 }
 
@@ -88,5 +87,3 @@ func renderFailureUR(c *gin.Context, uploadStatus UploadStatus, err error) {
 		Error:        err,
 	})
 }
-
-// TODO: isGPXPresent(w, r) && storeGPX(w, r)

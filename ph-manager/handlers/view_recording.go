@@ -10,7 +10,8 @@ import (
 type (
 	ViewRecordingPage struct {
 		RecordingID int
-		VideoName   string
+		FileName    string
+		Note        string
 		Status      string
 		Detections  []Detection
 		Error       error
@@ -58,7 +59,8 @@ func ViewRecording(c *gin.Context) {
 
 	p := ViewRecordingPage{
 		RecordingID: id,
-		VideoName:   recording.VideoName,
+		FileName:    recording.FileName,
+		Note:        recording.Note,
 		Status:      recording.Status,
 		Detections:  viewDetections,
 	}

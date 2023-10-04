@@ -14,6 +14,7 @@ type (
 
 	RecordingRow struct {
 		ID       int
+		Type     string
 		Status   string
 		Potholes int
 		DateTime time.Time
@@ -32,6 +33,7 @@ func Index(c *gin.Context) {
 	for i, recording := range recordings {
 		p.RecordingRows[i] = RecordingRow{
 			ID:       recording.ID,
+			Type:     recording.Type,
 			Status:   recording.Status,
 			Potholes: recording.NumberOfDetections,
 			DateTime: recording.CreatedAt,

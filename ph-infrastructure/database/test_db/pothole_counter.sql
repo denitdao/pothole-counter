@@ -17,14 +17,16 @@ CREATE TABLE recordings
 (
     id                 INT                                                  NOT NULL AUTO_INCREMENT,
 
-    video_name         VARCHAR(255)                                         NOT NULL,
+    file_name          VARCHAR(255)                                         NOT NULL,
     original_file_name VARCHAR(255)                                         NOT NULL,
+    note               VARCHAR(255)                                         NULL,
+    type               ENUM ('VIDEO', 'IMAGE')                              NOT NULL DEFAULT 'VIDEO',
     status             ENUM ('CREATED', 'PROCESSING', 'FINISHED', 'FAILED') NOT NULL DEFAULT 'CREATED',
     created_at         TIMESTAMP                                            NOT NULL,
 
     deleted            BOOLEAN                                              NOT NULL DEFAULT FALSE,
 
-    UNIQUE (video_name),
+    UNIQUE (file_name),
     PRIMARY KEY (id)
 );
 
@@ -63,7 +65,7 @@ CREATE TABLE detection_location
 (
     id           INT       NOT NULL AUTO_INCREMENT,
     detection_id INT       NOT NULL,
-    gpx_id       INT       NOT NULL,
+    gpx_id       INT       NULL,
 
     latitude     FLOAT     NOT NULL,
     longitude    FLOAT     NOT NULL,
@@ -71,7 +73,7 @@ CREATE TABLE detection_location
 
     FOREIGN KEY (detection_id) REFERENCES detections (id) ON DELETE CASCADE,
     FOREIGN KEY (gpx_id) REFERENCES gpx (id) ON DELETE CASCADE,
-    PRIMARY KEY (id, detection_id, gpx_id)
+    PRIMARY KEY (id, detection_id)
 );
 
 flush /*!50503 binary */ logs;

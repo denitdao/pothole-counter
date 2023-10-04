@@ -2,9 +2,13 @@
       hx-post="/upload-recording" hx-swap="outerHTML" hx-indicator="#spinner">
 
     <label class="block mb-2 text-sm font-medium text-gray-900" for="video">Upload video file</label>
-    <input class="block w-full text-sm text-gray-900 border border-gray-300 rounded-s cursor-pointer bg-gray-50 focus:outline-none"
+    <input class="block w-full text-sm text-gray-900 border border-gray-300 rounded-s cursor-pointer bg-gray-50"
            aria-describedby="video_help" id="video" name="video" type="file" accept="video/*" hx-preserve>
-    <p class="mt-1 text-sm text-gray-500 mb-12">.MP4 file</p>
+    <p class="mt-1 text-sm text-gray-500 mb-4">.MP4 file</p>
+
+    <label class="block mb-2 text-sm font-medium text-gray-900" for="note">Note (optional)</label>
+    <textarea class="block w-full text-sm text-gray-900 border border-gray-300 rounded-s bg-gray-50 p-2 mb-16"
+              aria-describedby="note_help" id="note" name="note" type="text" hx-preserve></textarea>
 
     <div id="spinner" class="htmx-indicator">Uploading...</div>
     <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white py-1 px-4 rounded mr-16 mb-4">

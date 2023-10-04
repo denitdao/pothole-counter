@@ -5,8 +5,10 @@ import "time"
 type (
 	Recording struct {
 		ID                 int
-		VideoName          string
+		FileName           string
 		OriginalFileName   string
+		Note               string
+		Type               string
 		Status             string
 		CreatedAt          time.Time
 		NumberOfDetections int
@@ -35,8 +37,8 @@ type (
 		ID          int
 		DetectionID int
 		GpxID       int
-		Latitude    float64
-		Longitude   float64
+		Latitude    float32
+		Longitude   float32
 		CreatedAt   time.Time
 	}
 )

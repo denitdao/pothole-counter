@@ -13,7 +13,7 @@ from sort import *
 
 MODEL_PATH = os.path.join(STORAGE_PATH, MODEL_FOLDER, MODEL_NAME)
 CLASS_NAMES = ["pothole"]
-VERTICAL_GAP = 25
+VERTICAL_GAP = 50
 
 model = YOLO(MODEL_PATH)
 
@@ -50,11 +50,13 @@ class Analyzer:
             logging.warning(f"Recording with ID {recording_id} already processing!")
             return
         self.db.update_recording_status(rec.id, "PROCESSING")
+        # TODO: rec is VIDEO - one flow
+        #       rec is IMAGE - another flow
 
         try:
             # Prepare state constants
-            video_path = os.path.join(STORAGE_PATH, VIDEO_FOLDER, rec.video_name)
-            unique_records_folder = rec.video_name.split(".")[0] + "_" + str(int(time.time_ns() / 1_000_000))
+            video_path = os.path.join(STORAGE_PATH, VIDEO_FOLDER, rec.file_name)
+            unique_records_folder = rec.file_name.split(".")[0] + "_" + str(int(time.time_ns() / 1_000_000))
             records_path = os.path.join(STORAGE_PATH, RECORD_FOLDER, unique_records_folder)
             cap = cv2.VideoCapture(video_path)
             video_frames_total = cap.get(cv2.CAP_PROP_FRAME_COUNT)
@@ -82,7 +84,7 @@ class Analyzer:
                 self.find_records(tracker_results, original_image, state)
 
                 # Showing progress
-                print_progress_bar(state.current_frame, state.total_frames, prefix=rec.video_name,
+                print_progress_bar(state.current_frame, state.total_frames, prefix=rec.file_name,
                                    suffix="| Detected:" + str(len(state.unique_results)), length=50)
 
             self.db.update_recording_status(rec.id, "FINISHED")

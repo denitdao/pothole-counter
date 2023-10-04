@@ -1,2 +1,2 @@
 INSERT INTO `recordings` VALUES
-(1000000,'potholes.mp4','potholes.mp4','CREATED','2023-06-07 12:34:56',false)
+(1000000,'potholes.mp4','potholes.mp4','Example video','VIDEO','CREATED','2023-06-07 12:34:56',false)
