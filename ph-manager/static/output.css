@@ -839,6 +839,10 @@ video {
   width: 20%;
 }
 
+.w-2\/3 {
+  width: 66.666667%;
+}
+
 .w-2\/5 {
   width: 40%;
 }
@@ -2554,6 +2558,19 @@ video {
 .content-\[\'this-is-also-valid\]-weirdly-enough\'\] {
   --tw-content: 'this-is-also-valid]-weirdly-enough';
   content: var(--tw-content);
+}
+
+#motion-effect .column tr {
+  transition-duration: 0.3s;
+}
+
+#motion-effect .column tr:hover {
+  background-color: rgba(0, 0, 0, 0.2);
+}
+
+#motion-effect .column tr:hover th {
+  background-color: rgba(0, 0, 0, 0.4);
+  color: #fff;
 }
 
 @media (min-width: 640px) {

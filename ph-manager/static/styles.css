@@ -1,3 +1,16 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+#motion-effect .column tr {
+    transition-duration: 0.3s;
+}
+
+#motion-effect .column tr:hover {
+    background-color: rgba(0, 0, 0, 0.1);
+}
+
+#motion-effect .column tr:hover th {
+    background-color: rgba(0, 0, 0, 0.2);
+    color: #fff;
+}

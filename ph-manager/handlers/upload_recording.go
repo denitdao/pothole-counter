@@ -28,6 +28,7 @@ type (
 func UploadRecording(c *gin.Context) {
 	uploadStatus := UploadStatus{}
 
+	// TODO: check media type and apply correct strategy
 	recording, err := storeVideo(c.Request)
 	if err != nil {
 		renderFailureUR(c, uploadStatus, err)
@@ -50,6 +51,7 @@ func UploadRecording(c *gin.Context) {
 	}
 
 	c.Status(http.StatusOK)
+	// TODO: redirect to /view-recording/video/:id or /view-recording/image/:id
 	c.Header("HX-Redirect", fmt.Sprintf("/view-recording/%d", recording.ID))
 }
 

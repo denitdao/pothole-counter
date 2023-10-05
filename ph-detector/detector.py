@@ -51,7 +51,8 @@ class Analyzer:
             return
         self.db.update_recording_status(rec.id, "PROCESSING")
         # TODO: rec is VIDEO - one flow
-        #       rec is IMAGE - another flow
+        #       rec is IMAGE - another flow (every single PH is a separate detection)
+        #                    - detect and save location on the fly
 
         try:
             # Prepare state constants

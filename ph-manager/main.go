@@ -33,6 +33,7 @@ func main() {
 	router.POST("/upload-recording", handlers.UploadRecording)
 	router.POST("/analyze/:id", handlers.AnalyzeRecording)
 	router.DELETE("/detection/:id", handlers.DeleteDetection)
+	// TODO: add map page
 
 	// Start server
 	log.Fatal(router.Run(":8080"))

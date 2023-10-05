@@ -17,7 +17,7 @@
     </div>
     <span class="text-red-500">{{ .Error }}</span>
 
-    <div class="flex mb-16 bg-white">
+    <div class="flex mb-12 bg-white">
         <div class="flex-1 w-2/5">
             {{ template "recording-status.gohtml" . }}
             <div>
@@ -33,8 +33,22 @@
         </div>
     </div>
 
-    {{/*TODO: show stacked bar graph of N potholes at time in the video */}}
-    {{/*https://chartscss.org/components/stacked/*/}}
+    {{ if .DetectionBatches }}
+        <div class="mb-12 w-2/3 mx-auto" id="motion-effect">
+            <table class="charts-css column show-heading show-labels show-primary-axis show-3-secondary-axes show-data-axes hide-data">
+                <caption>Detection distribution</caption>
+                <tbody>
+                {{ range .DetectionBatches }}
+                    <tr>
+                        <td style="--size: calc( {{ .NumberOfDetections }} / {{ .MaxBatchSize }} ); --color: lightgrey">
+                            <span class="tooltip">Detections: {{ .NumberOfDetections }}</span>
+                        </td>
+                    </tr>
+                {{ end }}
+                </tbody>
+            </table>
+        </div>
+    {{ end }}
 
     <div>
         {{ range .Detections }}
