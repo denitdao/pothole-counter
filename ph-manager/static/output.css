@@ -2565,11 +2565,11 @@ video {
 }
 
 #motion-effect .column tr:hover {
-  background-color: rgba(0, 0, 0, 0.2);
+  background-color: rgba(0, 0, 0, 0.1);
 }
 
 #motion-effect .column tr:hover th {
-  background-color: rgba(0, 0, 0, 0.4);
+  background-color: rgba(0, 0, 0, 0.2);
   color: #fff;
 }
 

@@ -63,13 +63,13 @@ CREATE TABLE gpx
 
 CREATE TABLE detection_location
 (
-    id           INT       NOT NULL AUTO_INCREMENT,
-    detection_id INT       NOT NULL,
-    gpx_id       INT       NULL,
+    id           INT            NOT NULL AUTO_INCREMENT,
+    detection_id INT            NOT NULL,
+    gpx_id       INT            NULL,
 
-    latitude     FLOAT     NOT NULL,
-    longitude    FLOAT     NOT NULL,
-    created_at   TIMESTAMP NOT NULL,
+    latitude     DECIMAL(9, 6)  NOT NULL,
+    longitude    DECIMAL(10, 6) NOT NULL,
+    created_at   TIMESTAMP      NOT NULL,
 
     FOREIGN KEY (detection_id) REFERENCES detections (id) ON DELETE CASCADE,
     FOREIGN KEY (gpx_id) REFERENCES gpx (id) ON DELETE CASCADE,

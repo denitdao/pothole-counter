@@ -16,3 +16,6 @@ scikit-image==0.19.3
 lapx>=0.4.0
 flask>=2.3.3
 pymysql>=1.1.0
+gpsphoto>=2.2.3
+exifread>=3.0.0
+piexif>=1.1.3

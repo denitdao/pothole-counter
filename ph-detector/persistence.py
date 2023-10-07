@@ -36,6 +36,21 @@ class Detection:
                    data['confidence'], data['created_at'])
 
 
+class DetectionLocation:
+    def __init__(self, id, detection_id, gpx_id, latitude, longitude, created_at):
+        self.id = id
+        self.detection_id = detection_id
+        self.gpx_id = gpx_id
+        self.latitude = latitude
+        self.longitude = longitude
+        self.created_at = created_at
+
+    @classmethod
+    def from_dict(cls, data):
+        return cls(data['id'], data['detection_id'], data['gpx_id'], data['latitude'], data['longitude'],
+                   data['created_at'])
+
+
 class Database:
     def __init__(self, host, user, password, dbname):
         self.connection = pymysql.connect(
@@ -72,6 +87,17 @@ class Database:
                            (detection.recording_id, detection.file_name, detection.frame_number,
                             detection.total_frame_number, detection.video_millisecond,
                             detection.total_video_millisecond, detection.confidence, detection.created_at))
+            self.connection.commit()
+            return cursor.lastrowid
+
+    def save_location(self, location: DetectionLocation):
+        with self.connection.cursor() as cursor:
+            sql = """
+            INSERT INTO detection_location (detection_id, gpx_id, latitude, longitude, created_at)
+            VALUES (%s, %s, %s, %s, %s)
+            """
+            cursor.execute(sql, (location.detection_id, location.gpx_id, location.latitude, location.longitude,
+                                 location.created_at))
             self.connection.commit()
 
     def close(self):

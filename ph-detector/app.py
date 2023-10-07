@@ -24,7 +24,7 @@ def analyze(recording_id):
 
 def background_analyze(recording_id):
     logging.info(f"Analysis started. \tRecording Id: {recording_id}")
-    ph_number = Analyzer().analyze_video(recording_id)
+    ph_number = Analyzer().analyze(recording_id)
     logging.info(f"Analysis finished.\tRecording Id: {recording_id}\tPH number: {ph_number}")
 
 
