@@ -50,10 +50,25 @@ func ViewRecording(c *gin.Context) {
 		return
 	}
 
-	detections, err := db.GetDetectionsWithLocation(id)
+	detections, err := db.GetDetections(id)
 	if err != nil {
 		renderFailureVR(c, err)
 		return
+	}
+
+	locations, err := db.GetLocationsByRecordingID(id)
+	if err != nil {
+		renderFailureVR(c, err)
+		return
+	}
+
+	for i := range detections {
+		for _, location := range locations {
+			if detections[i].ID == location.DetectionID {
+				detections[i].DetectionLocation = location
+				break
+			}
+		}
 	}
 
 	viewDetections := make([]Detection, len(detections))

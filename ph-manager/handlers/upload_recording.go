@@ -28,12 +28,30 @@ type (
 func UploadRecording(c *gin.Context) {
 	uploadStatus := UploadStatus{}
 
-	// TODO: check media type and apply correct strategy
-	recording, err := storeVideo(c.Request)
+	contentType, err := detectContentType(c)
 	if err != nil {
 		renderFailureUR(c, uploadStatus, err)
 		return
 	}
+	var recording db.Recording
+	switch {
+	case contentType == "video/mp4":
+		recording, err = storeVideo(c.Request)
+		if err != nil {
+			renderFailureUR(c, uploadStatus, err)
+			return
+		}
+	case contentType == "image/jpeg":
+		recording, err = storeImage(c.Request)
+		if err != nil {
+			renderFailureUR(c, uploadStatus, err)
+			return
+		}
+	default:
+		renderFailureUR(c, uploadStatus, fmt.Errorf("unsupported file type"))
+		return
+	}
+
 	uploadStatus.OriginalVideoName = recording.OriginalFileName
 
 	recording, err = db.CreateRecording(recording)
@@ -51,12 +69,32 @@ func UploadRecording(c *gin.Context) {
 	}
 
 	c.Status(http.StatusOK)
-	// TODO: redirect to /view-recording/video/:id or /view-recording/image/:id
 	c.Header("HX-Redirect", fmt.Sprintf("/view-recording/%d", recording.ID))
 }
 
+func detectContentType(c *gin.Context) (string, error) {
+	videoFile, _, err := c.Request.FormFile("file")
+	if err != nil {
+		return "", errors.New("unable to read video")
+	}
+	defer videoFile.Close()
+
+	// Read the first 512 bytes to determine the file type
+	buffer := make([]byte, 512)
+	_, err = videoFile.Read(buffer)
+	if err != nil {
+		return "", errors.New("unable to read video")
+	}
+	// Reset the read pointer of the file to the beginning
+	videoFile.Seek(0, 0)
+
+	// Determine the content type
+	contentType := http.DetectContentType(buffer)
+	return contentType, nil
+}
+
 func storeVideo(r *http.Request) (db.Recording, error) {
-	videoFile, header, err := r.FormFile("video")
+	videoFile, header, err := r.FormFile("file")
 	if err != nil {
 		return db.Recording{}, errors.New("unable to read video")
 	}
@@ -80,6 +118,34 @@ func storeVideo(r *http.Request) (db.Recording, error) {
 		CreatedAt:        time.Now(),
 		Note:             r.FormValue("note"),
 		Type:             "VIDEO",
+	}, nil
+}
+
+func storeImage(r *http.Request) (db.Recording, error) {
+	imageFile, header, err := r.FormFile("file")
+	if err != nil {
+		return db.Recording{}, errors.New("unable to read video")
+	}
+	defer imageFile.Close()
+
+	storagePath, imageFolder := util.GetProperty("storage.path"), util.GetProperty("video.folder")
+	imageDestPath := filepath.Join(storagePath, imageFolder)
+	imageDest, err := os.CreateTemp(imageDestPath, "i_*.jpg")
+	if err != nil {
+		return db.Recording{}, errors.New("unable to save image")
+	}
+	defer imageDest.Close()
+	_, err = io.Copy(imageDest, imageFile)
+	if err != nil {
+		return db.Recording{}, errors.New("unable to save image")
+	}
+
+	return db.Recording{
+		FileName:         filepath.Base(imageDest.Name()),
+		OriginalFileName: header.Filename,
+		CreatedAt:        time.Now(),
+		Note:             r.FormValue("note"),
+		Type:             "IMAGE",
 	}, nil
 }
 

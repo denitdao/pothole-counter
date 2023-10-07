@@ -108,47 +108,28 @@ func GetDetections(recordingID int) ([]Detection, error) {
 	return detections, nil
 }
 
-func GetDetectionsWithLocation(recordingID int) ([]Detection, error) {
+func GetLocationsByRecordingID(recordingID int) ([]DetectionLocation, error) {
 	rows, err := DB.Query(`
-		SELECT d.id,
-		       d.recording_id,
-		       d.file_name,
-		       d.frame_number,
-		       d.total_frame_number,
-		       d.video_millisecond,
-		       d.total_video_millisecond,
-		       d.confidence,
-		       d.created_at,
-		       l.id,
-		       l.detection_id,
-		       l.gpx_id,
-		       l.latitude,
-		       l.longitude,
-		       l.created_at
-		FROM detections d
-			LEFT JOIN detection_location l ON d.id = l.detection_id
-		WHERE d.recording_id = ? AND d.deleted = FALSE
-		ORDER BY l.created_at
-		`, recordingID)
+        SELECT l.id,
+               l.detection_id,
+               l.gpx_id,
+               l.latitude,
+               l.longitude,
+               l.created_at
+        FROM detection_location l
+        	INNER JOIN detections d ON l.detection_id = d.id
+        WHERE d.recording_id = ? AND d.deleted = FALSE
+        ORDER BY l.created_at
+        `, recordingID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
-	var detections []Detection
+	var locations []DetectionLocation
 	for rows.Next() {
-		var detection Detection
 		var location DetectionLocation
-		err := rows.Scan(&detection.ID,
-			&detection.RecordingID,
-			&detection.FileName,
-			&detection.FrameNumber,
-			&detection.TotalFrameNumber,
-			&detection.VideoMillisecond,
-			&detection.TotalVideoMillisecond,
-			&detection.Confidence,
-			&detection.CreatedAt,
-			&location.ID,
+		err := rows.Scan(&location.ID,
 			&location.DetectionID,
 			&location.GpxID,
 			&location.Latitude,
@@ -157,11 +138,10 @@ func GetDetectionsWithLocation(recordingID int) ([]Detection, error) {
 		if err != nil {
 			return nil, err
 		}
-		detection.DetectionLocation = location
-		detections = append(detections, detection)
+		locations = append(locations, location)
 	}
 
-	return detections, nil
+	return locations, nil
 }
 
 func DeleteDetection(id int) error {
