@@ -1,6 +1,9 @@
 package db
 
-import "time"
+import (
+	"database/sql"
+	"time"
+)
 
 type (
 	Recording struct {
@@ -24,6 +27,8 @@ type (
 		TotalVideoMillisecond int
 		Confidence            float32
 		CreatedAt             time.Time
+
+		DetectionLocation DetectionLocation
 	}
 
 	GPX struct {
@@ -36,9 +41,9 @@ type (
 	DetectionLocation struct {
 		ID          int
 		DetectionID int
-		GpxID       int
-		Latitude    float32
-		Longitude   float32
+		GpxID       sql.NullInt64
+		Latitude    float64
+		Longitude   float64
 		CreatedAt   time.Time
 	}
 )

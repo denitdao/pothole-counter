@@ -108,6 +108,62 @@ func GetDetections(recordingID int) ([]Detection, error) {
 	return detections, nil
 }
 
+func GetDetectionsWithLocation(recordingID int) ([]Detection, error) {
+	rows, err := DB.Query(`
+		SELECT d.id,
+		       d.recording_id,
+		       d.file_name,
+		       d.frame_number,
+		       d.total_frame_number,
+		       d.video_millisecond,
+		       d.total_video_millisecond,
+		       d.confidence,
+		       d.created_at,
+		       l.id,
+		       l.detection_id,
+		       l.gpx_id,
+		       l.latitude,
+		       l.longitude,
+		       l.created_at
+		FROM detections d
+			LEFT JOIN detection_location l ON d.id = l.detection_id
+		WHERE d.recording_id = ? AND d.deleted = FALSE
+		ORDER BY l.created_at
+		`, recordingID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var detections []Detection
+	for rows.Next() {
+		var detection Detection
+		var location DetectionLocation
+		err := rows.Scan(&detection.ID,
+			&detection.RecordingID,
+			&detection.FileName,
+			&detection.FrameNumber,
+			&detection.TotalFrameNumber,
+			&detection.VideoMillisecond,
+			&detection.TotalVideoMillisecond,
+			&detection.Confidence,
+			&detection.CreatedAt,
+			&location.ID,
+			&location.DetectionID,
+			&location.GpxID,
+			&location.Latitude,
+			&location.Longitude,
+			&location.CreatedAt)
+		if err != nil {
+			return nil, err
+		}
+		detection.DetectionLocation = location
+		detections = append(detections, detection)
+	}
+
+	return detections, nil
+}
+
 func DeleteDetection(id int) error {
 	_, err := DB.Exec("UPDATE detections SET deleted = TRUE WHERE id = ?", id)
 	if err != nil {

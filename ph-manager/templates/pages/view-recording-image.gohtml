@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {{ template "meta.gohtml" . }}
+    <title>View Recording</title>
+</head>
+<body>
+<header class="bg-white shadow-sm">
+    <div class="container mx-auto p-4">
+        <a href="/" class="text-lg text-blue-500 hover:text-blue-600 underline">&lt; go back</a>
+    </div>
+</header>
+
+<div class="container mx-auto p-4">
+    <div class="mb-12">
+        <h1 class="text-2xl font-bold">Discovered Potholes</h1>
+    </div>
+    <span class="text-red-500">{{ .Error }}</span>
+
+    <div class="flex mb-12 bg-white">
+        <div class="flex-1 w-2/5">
+            {{ template "recording-status.gohtml" . }}
+            <div>
+                <div class="text-lg font-semibold">Note</div>
+                <div class="mr-2">{{ .Note }}</div>
+            </div>
+        </div>
+        <div class="flex-1 w-3/5">
+            <img src="/videos/{{ .FileName }}" alt="Placeholder Image" class="max-w-full h-[250px] object-cover">
+        </div>
+    </div>
+
+    <div>
+        {{ range .Detections }}
+            <div class="flex mb-6 bg-white" id="detection-{{ .ID }}">
+                <div class="flex-1 w-2/5">
+                    <img src="/images/{{ .FileName }}" alt="Placeholder Image" class="max-w-full h-[250px] object-cover">
+                </div>
+
+                <div class="flex-1 w-3/5">
+                    <div class="ml-6">
+                        <div class="flex justify-between mb-6 items-baseline">
+                            <div class="text-xl font-semibold">ID: {{ .ID }}</div>
+                            <button class="px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600 focus:outline-none"
+                                    hx-delete="/detection/{{ .ID }}"
+                                    hx-target="closest div#detection-{{ .ID }}"
+                                    hx-swap="outerHTML"
+                                    hx-confirm="Do you want to delete this Detection?">
+                                Delete
+                            </button>
+                        </div>
+                        <div>Confidence: {{ formatFloat (mul .Confidence 100) }}%</div>
+                        <div>Location: {{ .Latitude }}  {{ .Longitude }}</div>
+                    </div>
+                </div>
+            </div>
+        {{ else }}
+            <div class="text-lg font-semibold text-center">No potholes detected</div>
+        {{ end }}
+    </div>
+</div>
+
+</body>
+</html>

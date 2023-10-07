@@ -24,6 +24,8 @@ type (
 		Confidence       float32
 		FrameNumber      int
 		TotalFrameNumber int
+		Latitude         float64
+		Longitude        float64
 	}
 
 	DetectionBatch struct {
@@ -48,7 +50,7 @@ func ViewRecording(c *gin.Context) {
 		return
 	}
 
-	detections, err := db.GetDetections(id)
+	detections, err := db.GetDetectionsWithLocation(id)
 	if err != nil {
 		renderFailureVR(c, err)
 		return
@@ -62,6 +64,8 @@ func ViewRecording(c *gin.Context) {
 			Confidence:       detection.Confidence,
 			FrameNumber:      detection.FrameNumber,
 			TotalFrameNumber: detection.TotalFrameNumber,
+			Latitude:         detection.DetectionLocation.Latitude,
+			Longitude:        detection.DetectionLocation.Longitude,
 		}
 	}
 
@@ -73,7 +77,13 @@ func ViewRecording(c *gin.Context) {
 		Detections:       viewDetections,
 		DetectionBatches: calculateDetectionBatches(viewDetections),
 	}
-	c.HTML(http.StatusOK, "view-recording.gohtml", p) // TODO: show correct slightly different template for video or image
+
+	switch recording.Type {
+	case "VIDEO":
+		c.HTML(http.StatusOK, "view-recording-video.gohtml", p)
+	case "IMAGE":
+		c.HTML(http.StatusOK, "view-recording-image.gohtml", p)
+	}
 }
 
 func calculateDetectionBatches(detections []Detection) []DetectionBatch {
@@ -112,7 +122,7 @@ func calculateDetectionBatches(detections []Detection) []DetectionBatch {
 }
 
 func renderFailureVR(c *gin.Context, err error) {
-	c.HTML(http.StatusBadRequest, "view-recording.gohtml", UploadRecordingComponent{
+	c.HTML(http.StatusBadRequest, "view-recording-video.gohtml", UploadRecordingComponent{
 		Error: err,
 	})
 }

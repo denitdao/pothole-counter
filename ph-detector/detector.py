@@ -140,8 +140,9 @@ class Analyzer:
 
             state.unique_results.append(record_id)
             image_copy = image.copy()
-            cv2.rectangle(image_copy, (x1, y1), (x2, y2), (0, 0, 255), 2)  # outline the hole at the frame
-            detection_id = self._store_record(record_id, image_copy, confidence, state)
+            cv2.rectangle(image_copy, (x1, y1), (x2, y2), (0, 0, 255), 4)  # outline the hole at the frame
+            cropped_image = crop_around_detection(image_copy, x1, y1, x2, y2)
+            detection_id = self._store_record(record_id, cropped_image, confidence, state)
 
             if state.location is not None:
                 detection_location = DetectionLocation(None, detection_id, None, state.location[0], state.location[1],
@@ -194,3 +195,27 @@ def get_geolocation(img_path):
         return None
     logging.info(f"GPS data: {gps_data}")
     return [gps_data['Latitude'], gps_data['Longitude']]
+
+
+def crop_around_detection(image, x1, y1, x2, y2):
+    h, w, _ = image.shape
+    crop_width = w // 2
+    crop_height = h // 2
+
+    # Default starting points for cropping
+    start_x = 0
+    start_y = 0
+
+    # Adjust start_x if detection is on the right half
+    if x2 > crop_width:
+        start_x = min(w - crop_width, x1)
+
+    # Adjust start_y if detection is on the bottom half
+    if y2 > crop_height:
+        start_y = min(h - crop_height, y1)
+
+    end_x = start_x + crop_width
+    end_y = start_y + crop_height
+
+    cropped_img = image[start_y:end_y, start_x:end_x]
+    return cropped_img

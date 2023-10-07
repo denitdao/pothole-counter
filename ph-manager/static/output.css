@@ -831,8 +831,8 @@ video {
   height: 1rem;
 }
 
-.h-auto {
-  height: auto;
+.h-\[250px\] {
+  height: 250px;
 }
 
 .w-1\/5 {
