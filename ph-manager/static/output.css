@@ -835,6 +835,10 @@ video {
   height: 250px;
 }
 
+.h-\[500px\] {
+  height: 500px;
+}
+
 .w-1\/5 {
   width: 20%;
 }

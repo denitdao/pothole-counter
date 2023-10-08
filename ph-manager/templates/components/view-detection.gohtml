@@ -1,0 +1,22 @@
+{{ if .Error }}
+    <div class="p-4 mb-4 text-sm text-yellow-800 rounded-lg bg-yellow-50" role="alert">
+        <span class="font-medium">Failed to load image!</span> {{ .Error }}
+    </div>
+{{ else }}
+    <div class="flex mb-6 bg-white" id="detection-{{ .ID }}">
+        <div class="flex-1 w-2/5">
+            <img src="/images/{{ .FileName }}" alt="Placeholder Image" class="max-w-full h-[250px] object-cover">
+        </div>
+
+        <div class="flex-1 w-3/5">
+            <div class="ml-6">
+                <div class="flex justify-between mb-6 items-baseline">
+                    <div class="text-xl font-semibold">ID: {{ .ID }}</div>
+                </div>
+                <div>Recording ID: {{ .RecordingID }}</div>
+                <div>Location: {{ .Latitude }}  {{ .Longitude }}</div>
+                <div>Confidence: {{ formatFloat (mul .Confidence 100) }}%</div>
+            </div>
+        </div>
+    </div>
+{{ end }}

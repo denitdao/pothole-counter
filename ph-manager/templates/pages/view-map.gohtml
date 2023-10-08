@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {{ template "meta.gohtml" . }}
+    <script async defer
+            src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBlCk5C8PTGu4Pa33V2mxssggMutVUaxmA&callback=initializeMap"
+    ></script>
+    <title>Map</title>
+</head>
+<body>
+<header class="bg-white shadow-sm">
+    <div class="container mx-auto p-4">
+        <a href="/" class="text-lg text-blue-500 hover:text-blue-600 underline">&lt; go back</a>
+    </div>
+</header>
+
+<div class="container mx-auto p-4">
+    <div class="mb-12">
+        <h1 class="text-2xl font-bold">Pothole Map</h1>
+    </div>
+
+    <div x-data="mapData()" x-init="alpineReady" x-ref="mapDiv" class="h-[500px] mb-12" id="map"></div>
+    {{/*use alpine to dynamically update url of this button?*/}}
+    {{/*TODO: how to dynamically update hx-get?*/}}
+    <div id="dataContainer"></div>
+</div>
+
+<script>
+    let alpineIsReady = false;
+    let googleMapsIsReady = false;
+
+    function initializeMap() {
+        googleMapsIsReady = true;
+        if (alpineIsReady && document.getElementById('map').__x) {
+            document.getElementById('map').__x.$data.fetchLocations();
+        }
+    }
+
+    function mapData() {
+        let map;
+
+        return {
+            alpineReady() {
+                alpineIsReady = true;
+                if (googleMapsIsReady) {
+                    this.fetchLocations();
+                }
+            },
+            async fetchLocations() {
+                try {
+                    const response = await fetch("http://localhost:8080/v1/map-data");
+                    if (!response.ok) {
+                        throw new Error("Failed fetching data from API");
+                    }
+
+                    const data = await response.json();
+
+                    this.drawOnMap(data);
+                } catch (error) {
+                    console.error("Error:", error);
+                }
+            },
+            drawOnMap(locations) {
+                map = new google.maps.Map(this.$refs.mapDiv, {
+                    center: {lat: 50.42399, lng: 30.56857},
+                    zoom: 10,
+                });
+
+                locations.forEach(location => {
+                    const marker = new google.maps.Marker({
+                        position: new google.maps.LatLng(location.Latitude, location.Longitude),
+                        map: map
+                    });
+
+                    marker.addListener('click', function () {
+                        console.log('clicked marker')
+                        const dataContainer = document.getElementById('dataContainer');
+                        // TODO: load all at this location
+                        htmx.ajax('GET', `/view-detection/${location.DetectionID}`, dataContainer, {
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                        });
+                    });
+                });
+            }
+        }
+    }
+</script>
+
+</body>
+</html>
