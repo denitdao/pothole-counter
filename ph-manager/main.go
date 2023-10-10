@@ -28,11 +28,13 @@ func main() {
 
 	// Setup routes
 	router.GET("/", handlers.Index)
-	router.GET("/add-recording", handlers.AddRecording)
 	router.GET("/view-recording/:id", handlers.ViewRecording)
 	router.GET("/view-map", handlers.ViewMap)
 	router.GET("/view-detection/:id", handlers.ViewDetection)
+	router.GET("/add-recording", handlers.AddRecording)
+	router.GET("/add-gpx/:recording_id", handlers.AddGpx)
 	router.POST("/upload-recording", handlers.UploadRecording)
+	router.POST("/upload-gpx/:recording_id", handlers.UploadGpx)
 	router.POST("/analyze/:id", handlers.AnalyzeRecording)
 	router.DELETE("/detection/:id", handlers.DeleteDetection)
 	// API
