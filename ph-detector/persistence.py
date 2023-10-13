@@ -93,6 +93,16 @@ class Database:
             return GPX.from_dict(result)
         return None
 
+    def get_detections_by_recording_id(self, recording_id):
+        with self.connection.cursor() as cursor:
+            sql = "SELECT * FROM detections WHERE recording_id=%s"
+            cursor.execute(sql, recording_id)
+            result = cursor.fetchall()
+
+        if result:
+            return [Detection.from_dict(item) for item in result]
+        return []
+
     def update_recording_status(self, recording_id, status):
         with self.connection.cursor() as cursor:
             sql = "UPDATE recordings SET status=%s WHERE id=%s"
