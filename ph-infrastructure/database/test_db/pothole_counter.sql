@@ -51,14 +51,14 @@ CREATE TABLE detections
 
 CREATE TABLE gpx
 (
-    id           INT          NOT NULL AUTO_INCREMENT,
-    recording_id INT          NOT NULL,
+    id           INT                                                  NOT NULL,
 
-    file_name    VARCHAR(255) NOT NULL,
-    created_at   TIMESTAMP    NOT NULL,
+    file_name    VARCHAR(255)                                         NOT NULL,
+    status       ENUM ('CREATED', 'PROCESSING', 'FINISHED', 'FAILED') NOT NULL DEFAULT 'CREATED',
+    created_at   TIMESTAMP                                            NOT NULL,
 
-    FOREIGN KEY (recording_id) REFERENCES recordings (id) ON DELETE CASCADE,
-    PRIMARY KEY (id, recording_id)
+    FOREIGN KEY (id) REFERENCES recordings (id) ON DELETE CASCADE,
+    PRIMARY KEY (id)
 );
 
 CREATE TABLE detection_location

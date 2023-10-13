@@ -36,6 +36,18 @@ class Detection:
                    data['confidence'], data['created_at'])
 
 
+class GPX:
+    def __init__(self, id, file_name, status, created_at):
+        self.id = id
+        self.file_name = file_name
+        self.status = status
+        self.created_at = created_at
+
+    @classmethod
+    def from_dict(cls, data):
+        return cls(data['id'], data['file_name'], data['status'], data['created_at'])
+
+
 class DetectionLocation:
     def __init__(self, id, detection_id, gpx_id, latitude, longitude, created_at):
         self.id = id
@@ -71,10 +83,26 @@ class Database:
             return Recording.from_dict(result)
         return None
 
+    def get_gpx_by_id(self, gpx_id):
+        with self.connection.cursor() as cursor:
+            sql = "SELECT * FROM gpx WHERE id=%s"
+            cursor.execute(sql, gpx_id)
+            result = cursor.fetchone()
+
+        if result:
+            return GPX.from_dict(result)
+        return None
+
     def update_recording_status(self, recording_id, status):
         with self.connection.cursor() as cursor:
             sql = "UPDATE recordings SET status=%s WHERE id=%s"
             cursor.execute(sql, (status, recording_id))
+            self.connection.commit()
+
+    def update_gpx_status(self, gpx_id, status):
+        with self.connection.cursor() as cursor:
+            sql = "UPDATE gpx SET status=%s WHERE id=%s"
+            cursor.execute(sql, (status, gpx_id))
             self.connection.commit()
 
     def save_detection(self, detection: Detection):

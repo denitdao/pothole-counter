@@ -5,9 +5,9 @@ import time
 from datetime import datetime
 
 import cv2
-from GPSPhoto import gpsphoto
 from ultralytics import YOLO
 
+from locator import get_geolocation
 from persistence import *
 from settings import *
 from sort import *
@@ -187,14 +187,6 @@ def print_progress_bar(iteration, total, prefix='', suffix='', decimals=1, lengt
     bar = fill * filled_length + '-' * (length - filled_length)
 
     logging.info(f'\r{prefix} |{bar}| {percent}% {suffix}')
-
-
-def get_geolocation(img_path):
-    gps_data = gpsphoto.getGPSData(img_path)
-    if gps_data is None:
-        return None
-    logging.info(f"GPS data: {gps_data}")
-    return [gps_data['Latitude'], gps_data['Longitude']]
 
 
 def crop_around_detection(image, x1, y1, x2, y2):

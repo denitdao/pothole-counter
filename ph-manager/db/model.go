@@ -32,10 +32,10 @@ type (
 	}
 
 	GPX struct {
-		ID          int
-		RecordingID int
-		FileName    string
-		CreatedAt   time.Time
+		ID        int
+		FileName  string
+		Status    string
+		CreatedAt time.Time
 	}
 
 	DetectionLocation struct {

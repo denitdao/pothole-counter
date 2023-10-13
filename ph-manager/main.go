@@ -36,7 +36,9 @@ func main() {
 	router.POST("/upload-recording", handlers.UploadRecording)
 	router.POST("/upload-gpx/:recording_id", handlers.UploadGpx)
 	router.POST("/analyze/:id", handlers.AnalyzeRecording)
+	router.POST("/locate/:id", handlers.LocateRecording)
 	router.DELETE("/detection/:id", handlers.DeleteDetection)
+	router.NoRoute(handlers.NotFound)
 	// API
 	router.GET("/v1/map-data", handlers.GetMapJsonData)
 

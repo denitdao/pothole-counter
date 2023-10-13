@@ -2,5 +2,6 @@
 *.jpg
 *.png
 *.pt
+*.gpx
 /learning/Project 3 - PPE Detection/*
 /learning/Project 4 - Poker Hand Detector/*

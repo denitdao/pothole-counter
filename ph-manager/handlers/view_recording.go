@@ -13,6 +13,8 @@ type (
 		FileName         string
 		Note             string
 		Status           string
+		GpxStatus        string
+		Type             string
 		Detections       []Detection
 		Error            error
 		DetectionBatches []DetectionBatch
@@ -40,13 +42,13 @@ func ViewRecording(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 
 	if err != nil {
-		renderFailureVR(c, err)
+		NotFound(c)
 		return
 	}
 
 	recording, err := db.GetRecording(id)
 	if err != nil {
-		renderFailureVR(c, err)
+		NotFound(c)
 		return
 	}
 
@@ -60,6 +62,12 @@ func ViewRecording(c *gin.Context) {
 	if err != nil {
 		renderFailureVR(c, err)
 		return
+	}
+
+	gpxStatus := "MISSING"
+	gpx, err := db.GetGpxID(id)
+	if err == nil {
+		gpxStatus = gpx.Status
 	}
 
 	for i := range detections {
@@ -89,6 +97,8 @@ func ViewRecording(c *gin.Context) {
 		FileName:         recording.FileName,
 		Note:             recording.Note,
 		Status:           recording.Status,
+		GpxStatus:        gpxStatus,
+		Type:             recording.Type,
 		Detections:       viewDetections,
 		DetectionBatches: calculateDetectionBatches(viewDetections),
 	}

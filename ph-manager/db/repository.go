@@ -18,6 +18,24 @@ func CreateRecording(recording Recording) (Recording, error) {
 	return recording, nil
 }
 
+func CreateUpdateGpx(gpx GPX) (GPX, error) {
+	result, err := DB.Exec(
+		"INSERT INTO gpx (id, file_name, status, created_at) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE file_name = ?, status = ?, created_at = ?",
+		gpx.ID, gpx.FileName, gpx.Status, gpx.CreatedAt, gpx.FileName, gpx.Status, gpx.CreatedAt,
+	)
+	if err != nil {
+		return GPX{}, err
+	}
+
+	id, err := result.LastInsertId()
+	if err != nil {
+		return GPX{}, err
+	}
+
+	gpx.ID = int(id)
+	return gpx, nil
+}
+
 func GetRecording(id int) (Recording, error) {
 	var recording Recording
 	err := DB.QueryRow(`SELECT id, file_name, original_file_name, note, type, status, created_at FROM recordings WHERE id = ? and deleted = FALSE`, id).
@@ -137,6 +155,27 @@ func GetDetection(id int) (Detection, error) {
 	}
 
 	return detection, nil
+}
+
+func GetGpxID(id int) (GPX, error) {
+	var gpx GPX
+	err := DB.QueryRow(`
+		SELECT id,
+			   file_name,
+			   status,
+			   created_at
+		FROM gpx
+		WHERE id = ?
+		`, id).
+		Scan(&gpx.ID,
+			&gpx.FileName,
+			&gpx.Status,
+			&gpx.CreatedAt)
+	if err != nil {
+		return GPX{}, err
+	}
+
+	return gpx, nil
 }
 
 func GetLocations() ([]DetectionLocation, error) {
