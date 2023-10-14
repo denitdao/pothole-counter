@@ -157,6 +157,47 @@ func GetDetection(id int) (Detection, error) {
 	return detection, nil
 }
 
+func GetDetectionsAtLocation(latitude float64, longitude float64) ([]Detection, error) {
+	rows, err := DB.Query(`
+		SELECT d.id,
+			   d.recording_id,
+			   d.file_name,
+			   d.frame_number,
+			   d.total_frame_number,
+			   d.video_millisecond,
+			   d.total_video_millisecond,
+			   d.confidence,
+			   d.created_at
+		FROM detections d
+			INNER JOIN detection_location l ON d.id = l.detection_id
+		WHERE l.latitude = ? AND l.longitude = ? AND d.deleted = FALSE
+		`, latitude, longitude)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var detections []Detection
+	for rows.Next() {
+		var detection Detection
+		err := rows.Scan(&detection.ID,
+			&detection.RecordingID,
+			&detection.FileName,
+			&detection.FrameNumber,
+			&detection.TotalFrameNumber,
+			&detection.VideoMillisecond,
+			&detection.TotalVideoMillisecond,
+			&detection.Confidence,
+			&detection.CreatedAt)
+		if err != nil {
+			return nil, err
+		}
+		detections = append(detections, detection)
+	}
+
+	return detections, nil
+}
+
 func GetGpxID(id int) (GPX, error) {
 	var gpx GPX
 	err := DB.QueryRow(`

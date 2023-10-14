@@ -43,5 +43,5 @@ func main() {
 	router.GET("/v1/map-data", handlers.GetMapJsonData)
 
 	// Start server
-	log.Fatal(router.Run(":8080"))
+	log.Fatal(router.Run("localhost:8080"))
 }

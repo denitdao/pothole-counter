@@ -22,6 +22,7 @@ type (
 
 	Detection struct {
 		ID               int
+		RecordingID      int
 		FileName         string
 		Confidence       float32
 		FrameNumber      int

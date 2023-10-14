@@ -9,12 +9,7 @@ import (
 
 type (
 	ViewDetectionComponent struct {
-		RecordingID int
-		ID          int
-		FileName    string
-		Confidence  float32
-		Latitude    float64
-		Longitude   float64
+		Detections []Detection
 
 		Error error
 	}
@@ -27,25 +22,34 @@ func ViewDetection(c *gin.Context) {
 		return
 	}
 
-	detection, err := db.GetDetection(id)
-	if err != nil {
-		renderFailureVD(c, err)
-		return
-	}
-
 	location, err := db.GetLocationByDetectionID(id)
 	if err != nil {
 		renderFailureVD(c, err)
 		return
 	}
 
+	allDetections, err := db.GetDetectionsAtLocation(location.Latitude, location.Longitude)
+	if err != nil {
+		renderFailureVD(c, err)
+		return
+	}
+
+	var paramDetections []Detection
+	for _, d := range allDetections {
+		paramDetections = append(paramDetections, Detection{
+			ID:               d.ID,
+			RecordingID:      d.RecordingID,
+			FileName:         d.FileName,
+			Confidence:       d.Confidence,
+			FrameNumber:      d.FrameNumber,
+			TotalFrameNumber: d.TotalFrameNumber,
+			Latitude:         location.Latitude,
+			Longitude:        location.Longitude,
+		})
+	}
+
 	c.HTML(http.StatusOK, "view-detection.gohtml", ViewDetectionComponent{
-		RecordingID: detection.RecordingID,
-		ID:          detection.ID,
-		FileName:    detection.FileName,
-		Confidence:  detection.Confidence,
-		Latitude:    location.Latitude,
-		Longitude:   location.Longitude,
+		Detections: paramDetections,
 	})
 }
 
