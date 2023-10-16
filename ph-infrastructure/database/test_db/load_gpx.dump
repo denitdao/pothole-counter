@@ -1,0 +1,3 @@
+insert into pothole_counter.gpx (id, file_name, status, created_at)
+values  (1000006, 'a_g_1668737581.gpx', 'FINISHED', '2023-10-15 13:26:53'),
+        (1000009, 'a_g_1080038194.gpx', 'FINISHED', '2023-10-15 13:36:07');

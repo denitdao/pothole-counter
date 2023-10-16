@@ -1,3 +1,8 @@
-INSERT INTO `recordings` VALUES
-(1000000,'potholes.mp4','potholes.mp4','Example video','VIDEO','CREATED','2023-06-07 12:34:56',false),
-(1000001,'IMG_20190429_103829.jpg','IMG_20190429_103829.jpg','Example image','IMAGE','CREATED','2023-10-07 17:51:39',false)
+insert into pothole_counter.recordings (id, file_name, original_file_name, note, type, status, created_at, deleted)
+values  (1000000, 'a_potholes.mp4', 'potholes.mp4', 'Example video', 'VIDEO', 'FINISHED', '2023-06-07 12:34:56', 0),
+        (1000001, 'a_i_233687214.jpg', '01-PXL_20230408_123026077.MP.jpg', 'st. Bazhana', 'IMAGE', 'FINISHED', '2023-10-15 13:08:01', 0),
+        (1000004, 'a_i_395565265.jpg', '02-PXL_20230917_142725946.MP.jpg', 'complicated photo, Bazhana', 'IMAGE', 'FINISHED', '2023-10-15 13:16:49', 0),
+        (1000005, 'a_i_2426821418.jpg', '03-PXL_20231008_151221989.jpg', 'Pedestrian area', 'IMAGE', 'FINISHED', '2023-10-15 13:17:25', 0),
+        (1000006, 'a_v_3509048142.mp4', '03-road.mp4', 'Cherkasy oblast', 'VIDEO', 'FINISHED', '2023-10-15 13:18:59', 0),
+        (1000008, 'a_i_209694705.jpg', '04-IMG_20190429_103722.jpg', '-', 'IMAGE', 'FINISHED', '2023-10-15 13:30:07', 0),
+        (1000009, 'a_v_3606567306.mp4', '01-bridge-kyiv.mp4', 'Kyiv bridge', 'VIDEO', 'FINISHED', '2023-10-15 13:32:52', 0);

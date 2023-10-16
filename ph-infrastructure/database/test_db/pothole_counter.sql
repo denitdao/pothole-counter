@@ -84,5 +84,5 @@ SELECT 'LOADING detections' as 'INFO';
 source docker-entrypoint-initdb.d/load_detections.dump ;
 SELECT 'LOADING gpx' as 'INFO';
 source docker-entrypoint-initdb.d/load_gpx.dump ;
-SELECT 'LOADING dept_manager' as 'INFO';
+SELECT 'LOADING load_detection_location' as 'INFO';
 source docker-entrypoint-initdb.d/load_detection_location.dump ;

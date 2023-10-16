@@ -15,7 +15,7 @@ from sort import *
 # Constants
 MODEL_PATH = os.path.join(STORAGE_PATH, MODEL_FOLDER, MODEL_NAME)
 CLASS_NAMES = ["pothole"]
-VERTICAL_GAP = 50
+VERTICAL_GAP = 60
 model = YOLO(MODEL_PATH)
 
 
