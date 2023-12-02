@@ -35,18 +35,30 @@
 
     {{ if .DetectionBatches }}
         <div class="mb-12 w-2/3 mx-auto" id="motion-effect">
-            <table class="charts-css column show-heading show-labels show-primary-axis show-3-secondary-axes show-data-axes hide-data">
-                <caption>Detection distribution</caption>
-                <tbody>
-                {{ range .DetectionBatches }}
-                    <tr>
-                        <td style="--size: calc( {{ .NumberOfDetections }} / {{ .MaxBatchSize }} ); --color: lightgrey">
-                            <span class="tooltip">Detections: {{ .NumberOfDetections }}</span>
-                        </td>
-                    </tr>
-                {{ end }}
-                </tbody>
-            </table>
+            <!-- Chart Container -->
+            <div class="relative">
+                <!-- Y-axis Label -->
+                <div class="absolute bottom-1/2 left-0 transform translate-y-1/2 -translate-x-[50px] -rotate-90">
+                    <span class="text-xs">Detections -></span>
+                </div>
+                <table
+                    class="charts-css column show-heading show-labels show-primary-axis show-3-secondary-axes show-data-axes hide-data relative">
+                    <caption>Detection distribution</caption>
+                    <tbody>
+                    {{ range .DetectionBatches }}
+                        <tr>
+                            <td style="--size: calc( {{ .NumberOfDetections }} / {{ .MaxBatchSize }} ); --color: lightgrey">
+                                <span class="tooltip">Detections: {{ .NumberOfDetections }}</span>
+                            </td>
+                        </tr>
+                    {{ end }}
+                    </tbody>
+                </table>
+                <!-- X-axis Label -->
+                <div class="absolute bottom-0 left-1/2 transform -translate-x-1/2 text-xs mt-2">
+                    <span>Time -></span>
+                </div>
+            </div>
         </div>
     {{ end }}
 
